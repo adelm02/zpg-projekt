@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/adelamartynkova/Desktop/src/build",
+  "command": "/usr/bin/clang++  -I/opt/homebrew/include -I/Users/adelamartynkova/Desktop/src/src -g -std=gnu++20 -arch arm64 -o CMakeFiles/zpgproj.dir/zkouska.cpp.o -c /Users/adelamartynkova/Desktop/src/zkouska.cpp",
+  "file": "/Users/adelamartynkova/Desktop/src/zkouska.cpp",
+  "output": "CMakeFiles/zpgproj.dir/zkouska.cpp.o"
+}
+]

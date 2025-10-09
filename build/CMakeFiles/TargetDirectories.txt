@@ -1,0 +1,3 @@
+/Users/adelamartynkova/Desktop/src/build/CMakeFiles/zpgproj.dir
+/Users/adelamartynkova/Desktop/src/build/CMakeFiles/edit_cache.dir
+/Users/adelamartynkova/Desktop/src/build/CMakeFiles/rebuild_cache.dir
