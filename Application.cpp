@@ -3,8 +3,6 @@
 
 Application::Application(SceneManager& manager) : manager(manager), window(nullptr) {}
 
-
-
 Application::~Application() {
     terminate();
 }
@@ -24,10 +22,13 @@ bool Application::init(int width, int height, const char* title) {
 
     lastTime = glfwGetTime();
     window = glfwCreateWindow(width, height, title, NULL, NULL);
+
     if (!window) {
         glfwTerminate();
         return false;
     }
+
+    Controller *controller = new Controller(window);
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
@@ -51,11 +52,6 @@ void Application::error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
-void Application::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    printf("key_callback [%d,%d,%d,%d]\n", key, scancode, action, mods);
-}
 
 void Application::window_focus_callback(GLFWwindow* window, int focused) {
     printf("window_focus_callback \n");
@@ -86,6 +82,8 @@ void Application::Run() {
         // Vykresli aktuální scénu
         manager.drawCurrentScene();
         manager.update(deltaTime);
+
+        glEnable(GL_DEPTH_TEST);
 
         glfwPollEvents();
         glfwSwapBuffers(window);

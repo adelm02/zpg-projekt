@@ -45,3 +45,5 @@ void Shader::AttachToShader(GLuint programId) {
         glAttachShader(programId, id);
 }
 
+
+

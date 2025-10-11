@@ -1,9 +1,14 @@
 #include "ShaderProgram.h"
 
+#include <iostream>
+#include <ostream>
 #include <glm/gtc/type_ptr.hpp>
 
-ShaderProgram::ShaderProgram() {
+#include "Camera.h"
 
+
+ShaderProgram::ShaderProgram() {
+    Camera::getInstance()->addObserver(this);
     id = glCreateProgram();
 }
 
@@ -59,4 +64,13 @@ void ShaderProgram::SetUniform(const char *name, int value) const {
     if (loc != -1) {
         glUniform1i(loc, value);
     }
+}
+
+void ShaderProgram::update(glm::mat4 view, glm::vec3 viewPos, glm::mat4 projection) {
+    this->useShaderProgram();
+    printf("%f , %f , %f",viewPos[0], viewPos[1], viewPos[2]);
+    this->SetUniform("viewPos", viewPos);
+    this->SetUniform("projectionMatrix", projection);
+    this->SetUniform("viewMatrix", view);
+
 }

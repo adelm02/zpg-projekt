@@ -18,7 +18,7 @@ class Rotate : public AbstractTrans{
     float speed = 0.0f;
     void apply() override;
     void setSpeed(float s) { speed = s; }
-    void update(float dt) override{ angle += speed * dt;      std::cout << "angle: " << angle << std::endl;}
+    void update(float dt) override{ angle += speed * dt;}
 
 };
 

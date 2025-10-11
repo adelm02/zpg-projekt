@@ -21,3 +21,4 @@ void Transformation::update(float dt) {
         if (trans) trans->update(dt);
     }
 }
+

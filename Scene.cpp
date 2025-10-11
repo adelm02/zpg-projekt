@@ -14,7 +14,6 @@ void Scene::drawAll() {
 }
 
 void Scene::update(float dt) {
-    std::cout << dt << std::endl;
     for (auto* obj : objects) {
         if (obj) obj->update(dt);
     }

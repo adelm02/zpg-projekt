@@ -94,6 +94,12 @@ add_executable(zpgproj
         Rotate.h
         SceneManager.cpp
         SceneManager.h
+        Camera.cpp
+        Camera.h
+        Observer.cpp
+        Observer.h
+        Controller.cpp
+        Controller.h
 )
 
 # Include the GLFW, GLM, and GLEW directories

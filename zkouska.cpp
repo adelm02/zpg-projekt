@@ -15,10 +15,8 @@
 #include "Tranform.h"
 #include "AbstractTrans.h"
 #include "SceneManager.h"
-#include "sphere.h"
-#include "bushes.h"
 #include "tree.h"
-#include "suzi_smooth.h"
+#include "bushes.h"
 
 
 const float points[] = {
@@ -30,19 +28,6 @@ const float points[] = {
      0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
      0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0f
 };
-
-const float points2[] = {
-    -0.5f,  0.5f, 0.0f,
-     0.5f,  0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f
-};
-
-const float points3[] = {
-    -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-    0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-   -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
-};
-
 
 
 const char* vertex_shader =
@@ -63,18 +48,21 @@ const char* fragment_shader =
 const char* vertex_shader2 =
 "#version 330\n"
 "layout(location=0) in vec3 vp;\n"
-"layout(location=1) in vec3 vc;\n"
+"layout(location=1) in vec3 vn;\n"
 "out vec3 fragColor;\n"
 "uniform mat4 model;\n"
+"uniform mat4 viewMatrix;\n"
+"uniform mat4 projectionMatrix;\n"
 "void main() {\n"
-"    fragColor = vc;\n"
-"    gl_Position = model * vec4(vp, 1.0);\n"
+"    fragColor = vn;\n"
+"    gl_Position = projectionMatrix * viewMatrix * model * vec4(vp, 1.0);\n"
 "}";
 
 const char* fragment_shader2 =
 "#version 330\n"
 "in vec3 fragColor;\n"
 "out vec4 frag_color;\n"
+"uniform vec3 viewPos;\n"
 "void main() {\n"
 "    frag_color = vec4(fragColor, 1.0);\n"
 "}";
@@ -83,46 +71,10 @@ const char* fragment_shader2 =
 
 int main() {
 
-
     SceneManager manager;
     Application app(manager);
     if (!app.init(800, 600, "ZPG")) return -1;
     GLFWwindow* window = app.getWindow();
-
-    Modell ctverec;
-    ctverec.loadData(points, sizeof(points)/sizeof(float), 6);
-
-    Modell trojuhelnik;
-    trojuhelnik.loadData(points2, sizeof(points2)/sizeof(float), 3);
-
-    Modell trojuhelnik2;
-    trojuhelnik2.loadData(points3, sizeof(points3)/sizeof(float), 6);
-
-    Modell koule;
-    koule.loadData(sphere, sizeof(sphere)/sizeof(float), 6);
-
-    Modell křok;
-    křok.loadData(bushes, sizeof(bushes)/sizeof(float), 6);
-
-    Modell suzi;
-    suzi.loadData(suziSmooth, sizeof(suziSmooth)/sizeof(float), 6);
-
-    Modell stromek;
-    stromek.loadData(tree, sizeof(tree)/sizeof(float), 6);
-
-    Shader vertex(vertex_shader, "vertex");
-    vertex.Compile();
-
-    Shader fragment(fragment_shader, "fragment");
-    fragment.Compile();
-
-    ShaderProgram purpleProgram;
-    purpleProgram.addShader(vertex);
-    purpleProgram.addShader(fragment);
-
-    // linkneš program
-    purpleProgram.link();
-
 
     Shader vertex2(vertex_shader2, "vertex");
     vertex2.Compile();
@@ -130,102 +82,62 @@ int main() {
     Shader fragment2(fragment_shader2, "fragment");
     fragment2.Compile();
 
-
     ShaderProgram colorProgram;
     colorProgram.addShader(vertex2);
     colorProgram.addShader(fragment2);
-
-    // linkneš program
     colorProgram.link();
 
-    Rotate r(45.0f, glm::vec3(0,1,0));
-    Rotate r1(45.0f, glm::vec3(0,1,0));
-    Rotate r2(90.0f, glm::vec3(0,1,0));
-    Scale s(0.2f, 0.2f, 0.0f);
-    Scale s2(1.0f, 1.0f, 1.0f);
+    Modell strom;
+    strom.loadData(tree, sizeof(tree)/sizeof(float), 6);
 
-    Tranform tvlevo(-4.0f, 0.0f, 0.0f);
-    Tranform tvpravo(4.0f, 0.0f, 0.0f);
-    Tranform tnahoru(0.0f, 3.0f, 0.0f);
-    Tranform tdolu(0.0f, -3.0f, 0.0f);
+    Modell bush;
+    bush.loadData(bushes, sizeof(bushes)/sizeof(float), 6);
 
-//vytvoření první trans
-    Transformation t1;
-    t1.addTrans(&s);
-    t1.addTrans(&r);
+    std::vector<Transformation*> transforms;
+    std::vector<DrawableObject*> stromy;
+    std::vector<DrawableObject*> bushes;
 
-    Transformation p;
-    p.addTrans(&tvpravo);
-    //využiju kompozit (jako parametr dám trans1)
-    p.addTrans(&t1);
 
-    Transformation l;
-    l.addTrans(&tvlevo);
-    l.addTrans(&t1);
+    for (int i = 0; i < 50; i++) {
+        float x = (i % 10) * 10.0f;
+        float z = (i / 10) * 10.0f;
+        float x1 = ((i % 13) * 10.0f) + 5.0f;
+        float z1 = ((i / 13) * 10.0f) + 5.0f;
 
-    Transformation n;
-    n.addTrans(&tnahoru);
-    n.addTrans(&t1);
 
-    Transformation d;
-    d.addTrans(&tdolu);
-    d.addTrans(&t1);
+        Transformation* t = new Transformation();
+        Tranform* move = new Tranform(x, 0.0f, z);
+        t->addTrans(move);
+        transforms.push_back(t);
 
-    Transformation t6;
-    t6.addTrans(&s);
+        Transformation* tBush = new Transformation();
+        Tranform* moveBush = new Tranform(x1, 0.0f, z1);
+        Scale* s = new Scale(3.f, 3.f, 3.f);
+        tBush->addTrans(s);
+        tBush->addTrans(moveBush);
 
-    Transformation t7;
-    t7.addTrans(&s2);
+        transforms.push_back(tBush);
 
-    Transformation t8;
-    t8.addTrans(&r1);
-    t8.addTrans(&l);
+        DrawableObject* stromek = new DrawableObject(strom, colorProgram, *t);
+        stromy.push_back(stromek);
 
-    Transformation t9;
-    t9.addTrans(&r2);
-    t9.addTrans(&l);
-
-    Rotate rSpin(0.0f, glm::vec3(0,0,1));
-    rSpin.setSpeed(glm::radians(1440.0f));
-
-    Transformation tSpin;
-    tSpin.addTrans(&rSpin);
-
-    DrawableObject* tr = new DrawableObject(trojuhelnik, purpleProgram, n);
-    DrawableObject* suzi1 = new DrawableObject(suzi, colorProgram, t1);
-    DrawableObject* stromek1 = new DrawableObject(stromek, colorProgram, p);
-    DrawableObject* suzi2 = new DrawableObject(suzi, colorProgram, t8);
-    DrawableObject* suzi3 = new DrawableObject(suzi, colorProgram, t9);
-    DrawableObject* křok2 = new DrawableObject(křok, purpleProgram, d);
-    DrawableObject* křok3 = new DrawableObject(křok, colorProgram, t7);
-    DrawableObject* obj2spin = new DrawableObject(trojuhelnik, purpleProgram, tSpin);
-    DrawableObject* koule1 = new DrawableObject(koule, colorProgram, p);
-    DrawableObject* koule2 = new DrawableObject(koule, colorProgram, l);
-    DrawableObject* koule3 = new DrawableObject(koule, colorProgram, n);
-    DrawableObject* koule4 = new DrawableObject(koule, colorProgram, d);
-
+        DrawableObject* bushi = new DrawableObject(bush, colorProgram, *tBush);
+        bushes.push_back(bushi);
+    }
 
     static Scene scene1;
-    static Scene scene2;
-    static Scene scene3;
 
-    scene1.addObject(tr);
-    scene1.addObject(stromek1);
-    scene1.addObject(křok2);
-    scene1.addObject(křok3);
-    scene1.addObject(suzi1);
-    scene1.addObject(suzi3);
-    scene1.addObject(suzi2);
-    scene2.addObject(koule1);
-    scene2.addObject(koule2);
-    scene2.addObject(koule3);
-    scene2.addObject(koule4);
-    scene3.addObject(obj2spin);
 
+    for (auto &st : stromy) {
+        scene1.addObject(st);
+    }
+
+
+    for (auto &b : bushes) {
+        scene1.addObject(b);
+    }
 
     manager.addScene(&scene1);
-    manager.addScene(&scene2);
-    manager.addScene(&scene3);
 
     app.Run();
 
