@@ -5,7 +5,7 @@
 #include "Camera.h"
 #include <iostream>
 
-Camera* Camera::instance = nullptr;
+Camera* Camera::instance = nullptr; // cool 
 
 glm::mat4 Camera::getCamera(){
     return glm::lookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
@@ -19,12 +19,12 @@ Camera * Camera::getInstance() {
 }
 
 void Camera::addObserver(Observer *observer) {
-    observers.push_back(observer);
+    observers.push_back(observer); // cool vector ukazovateľov na "sledujúcich" len pridanie 
 }
 
 void Camera::notify() {
     for (Observer* observer : observers) {
-        observer->update(this->getCamera(), this->getCameraPos(), this->getProjection());
+        observer->update(this->getCamera(), this->getCameraPos(), this->getProjection()); // TODO premysli pull pattern odovzadanie ukazovateľa 
     }
 }
 
@@ -73,6 +73,7 @@ void Camera::camera_move(GLFWwindow *window, double xpos, double ypos) {
     yaw   += xoffset;
     pitch += yoffset;
 
+    // nice asi klasicky fix gimbal efektu 
     if(pitch > 89.0f)
         pitch = 89.0f;
     if(pitch < -89.0f)
