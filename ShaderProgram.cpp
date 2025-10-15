@@ -1,9 +1,7 @@
 #include "ShaderProgram.h"
-
 #include <iostream>
 #include <ostream>
 #include <glm/gtc/type_ptr.hpp>
-
 #include "Camera.h"
 
 
@@ -20,7 +18,7 @@ bool ShaderProgram::useShaderProgram() const{
 }
 
 void ShaderProgram::addShader(Shader& shader) {
-    shader.AttachToShader(id);
+    shader.attachToShader(id);
 }
 
 void ShaderProgram::link() {
@@ -66,11 +64,11 @@ void ShaderProgram::SetUniform(const char *name, int value) const {
     }
 }
 
-void ShaderProgram::update(glm::mat4 view, glm::vec3 viewPos, glm::mat4 projection) {
+void ShaderProgram::update() {
     this->useShaderProgram();
-    printf("%f , %f , %f",viewPos[0], viewPos[1], viewPos[2]);
-    this->SetUniform("viewPos", viewPos);
-    this->SetUniform("projectionMatrix", projection);
-    this->SetUniform("viewMatrix", view);
+    Camera* cam = Camera::getInstance();
+    this->SetUniform("viewMatrix", cam->getCamera());
+    this->SetUniform("viewPos", cam->getCameraPos());
+    this->SetUniform("projectionMatrix", cam->getProjection());
 
 }

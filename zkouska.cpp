@@ -16,56 +16,8 @@
 #include "AbstractTrans.h"
 #include "SceneManager.h"
 #include "tree.h"
+#include "sphere.h"
 #include "bushes.h"
-
-
-const float points[] = {
-    -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-     0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
-
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
-     0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-     0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 0.0f
-};
-
-
-const char* vertex_shader =
-"#version 330\n"
-"layout(location=0) in vec3 vp;\n"
-"uniform mat4 model;\n"
-"void main() {\n"
-"    gl_Position = model * vec4(vp, 1.0);\n"
-"}";
-
-const char* fragment_shader =
-"#version 330\n"
-"out vec4 fragColor;\n"
-"void main() {\n"
-"    fragColor = vec4(0.5, 0.0, 0.5, 1.0);\n"
-"}";
-
-const char* vertex_shader2 =
-"#version 330\n"
-"layout(location=0) in vec3 vp;\n"
-"layout(location=1) in vec3 vn;\n"
-"out vec3 fragColor;\n"
-"uniform mat4 model;\n"
-"uniform mat4 viewMatrix;\n"
-"uniform mat4 projectionMatrix;\n"
-"void main() {\n"
-"    fragColor = vn;\n"
-"    gl_Position = projectionMatrix * viewMatrix * model * vec4(vp, 1.0);\n"
-"}";
-
-const char* fragment_shader2 =
-"#version 330\n"
-"in vec3 fragColor;\n"
-"out vec4 frag_color;\n"
-"uniform vec3 viewPos;\n"
-"void main() {\n"
-"    frag_color = vec4(fragColor, 1.0);\n"
-"}";
 
 
 
@@ -76,22 +28,26 @@ int main() {
     if (!app.init(800, 600, "ZPG")) return -1;
     GLFWwindow* window = app.getWindow();
 
-    Shader vertex2(vertex_shader2, "vertex");
-    vertex2.Compile();
 
-    Shader fragment2(fragment_shader2, "fragment");
-    fragment2.Compile();
+    Shader vertex;
+    vertex.createShaderFromFile(GL_VERTEX_SHADER, "shaders/vertex.glsl");
 
-    ShaderProgram colorProgram;
-    colorProgram.addShader(vertex2);
-    colorProgram.addShader(fragment2);
-    colorProgram.link();
+    Shader fragment;
+    fragment.createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/fragment.glsl");
+
+    ShaderProgram program;
+    program.addShader(vertex);
+    program.addShader(fragment);
+    program.link();
 
     Modell strom;
     strom.loadData(tree, sizeof(tree)/sizeof(float), 6);
 
     Modell bush;
     bush.loadData(bushes, sizeof(bushes)/sizeof(float), 6);
+
+    Modell koule;
+    koule.loadData(sphere, sizeof(sphere)/sizeof(float), 6);
 
     std::vector<Transformation*> transforms;
     std::vector<DrawableObject*> stromy;
@@ -118,14 +74,40 @@ int main() {
 
         transforms.push_back(tBush);
 
-        DrawableObject* stromek = new DrawableObject(strom, colorProgram, *t);
+        DrawableObject* stromek = new DrawableObject(strom, program, *t);
         stromy.push_back(stromek);
 
-        DrawableObject* bushi = new DrawableObject(bush, colorProgram, *tBush);
+        DrawableObject* bushi = new DrawableObject(bush, program, *tBush);
         bushes.push_back(bushi);
     }
 
+
+    Tranform kvpravo (2.f, 0.f, 0.f);
+    Tranform kvlevo (-2.f, 0.f, 0.f);
+    Tranform kdole (0.f, -2.f, 0.f);
+    Tranform hore (0.f, 2.f, 0.f);
+
+    Transformation tRight;
+    tRight.addTrans(&kvpravo);
+
+    Transformation tLeft;
+    tLeft.addTrans(&kvlevo);
+
+    Transformation tUp;
+    tUp.addTrans(&hore);
+
+    Transformation tDown;
+    tDown.addTrans(&kdole);
+
+
+    DrawableObject* sphereRight = new DrawableObject(koule, program, tRight);
+    DrawableObject* sphereLeft = new DrawableObject(koule, program, tLeft);
+    DrawableObject* sphereUp = new DrawableObject(koule, program, tUp);
+    DrawableObject* sphereDown = new DrawableObject(koule, program, tDown);
+
+
     static Scene scene1;
+    static Scene scene2;
 
 
     for (auto &st : stromy) {
@@ -137,7 +119,13 @@ int main() {
         scene1.addObject(b);
     }
 
+    scene2.addObject(sphereRight);
+    scene2.addObject(sphereLeft);
+    scene2.addObject(sphereUp);
+    scene2.addObject(sphereDown);
+
     manager.addScene(&scene1);
+    manager.addScene(&scene2);
 
     app.Run();
 

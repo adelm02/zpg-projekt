@@ -12,9 +12,12 @@
 
 class Shader {
 public:
+    Shader() = default;
     Shader(const char* src, char * type);
     void Compile();
-    void AttachToShader(GLuint programId);
+    void attachToShader(GLuint programId);
+    void createShader(GLenum shaderType, const char* shaderCode);
+    void createShaderFromFile(GLenum shaderType, const char* shaderFile);
 
 protected:
     const char* source = nullptr;

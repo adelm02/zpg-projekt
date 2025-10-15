@@ -1,5 +1,8 @@
 #include "Shader.h"
 
+#include <fstream>
+#include <iostream>
+
 
 Shader::Shader(const char *src,char* t) {
     source = src;
@@ -40,10 +43,41 @@ void Shader::Compile(){
 
 }
 
-void Shader::AttachToShader(GLuint programId) {
+void Shader::attachToShader(GLuint programId) {
 
         glAttachShader(programId, id);
 }
 
+void Shader::createShader(GLenum shaderType, const char *shaderCode)
+{
+    // Creates an empty shader
+    id = glCreateShader(shaderType);
+    glShaderSource(id, 1, &shaderCode, NULL);
+    glCompileShader(id);
+
+    GLint success;
+    glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+    if (success == 0)
+    {
+        char infoLog[512];
+        glGetShaderInfoLog(id, 512, NULL, infoLog);
+        std::cout << "Shader compile error:\n" << infoLog << std::endl;
+    }
+}
+
+void Shader::createShaderFromFile(GLenum shaderType, const char* shaderFile)
+{
+    //Loading the contents of a file into a variable
+    std::ifstream file(shaderFile);
+    if (!file.is_open())
+    {
+        std::cout << "Unable to open file " << shaderFile << std::endl;
+        exit(-1);
+    }
+    std::string shaderCode((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+
+    createShader(shaderType, shaderCode.c_str());
+
+}
 
 

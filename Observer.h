@@ -9,7 +9,7 @@
 
 class Observer {
     public:
-    virtual void update(glm::mat4 view, glm::vec3 viewPos, glm::mat4 projection) = 0; // cool mrkni na pull pattern a predanie ukazovatelom
+    virtual void update() = 0;
 };
 
 

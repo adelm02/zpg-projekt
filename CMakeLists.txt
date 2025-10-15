@@ -96,7 +96,6 @@ add_executable(zpgproj
         SceneManager.h
         Camera.cpp
         Camera.h
-        Observer.cpp
         Observer.h
         Controller.cpp
         Controller.h

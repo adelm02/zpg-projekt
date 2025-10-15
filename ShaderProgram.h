@@ -19,7 +19,7 @@ public:
     void SetUniform(const char* name, const glm::vec3& vector) const;
     void SetUniform(const char* name, float value) const;
     void SetUniform(const char* name, int value) const;
-    virtual void update(glm::mat4 view, glm::vec3 viewPos, glm::mat4 projection);
+    virtual void update();
 
 };
 #endif //ZPGPROJ_SHADERPROGRAM_H
