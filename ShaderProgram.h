@@ -12,7 +12,7 @@ protected:
 public:
     ShaderProgram();
     ~ShaderProgram();
-    bool useShaderProgram ()const;
+    void useShaderProgram ()const;
     void addShader(Shader& shader);
     void link();
     void SetUniform(const char* name, const glm::mat4& matrix) const;

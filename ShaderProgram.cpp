@@ -12,9 +12,8 @@ ShaderProgram::ShaderProgram() {
 
 ShaderProgram::~ShaderProgram() =default;
 
-bool ShaderProgram::useShaderProgram() const{
+void ShaderProgram::useShaderProgram() const{
     glUseProgram(id);
-    return true;
 }
 
 void ShaderProgram::addShader(Shader& shader) {
@@ -37,6 +36,7 @@ void ShaderProgram::link() {
 }
 
 void ShaderProgram::SetUniform(const char *name, const glm::mat4 &matrix) const {
+    glUseProgram(id);
     GLint loc = glGetUniformLocation(id, name);
     if (loc != -1) {
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
@@ -44,6 +44,7 @@ void ShaderProgram::SetUniform(const char *name, const glm::mat4 &matrix) const 
 }
 
 void ShaderProgram::SetUniform(const char *name, const glm::vec3 &vector) const {
+    glUseProgram(id);
     GLint loc = glGetUniformLocation(id, name);
     if (loc != -1) {
         glUniform3fv(loc, 1, glm::value_ptr(vector));
@@ -51,6 +52,7 @@ void ShaderProgram::SetUniform(const char *name, const glm::vec3 &vector) const 
 }
 
 void ShaderProgram::SetUniform(const char *name, float value) const {
+    glUseProgram(id);
     GLint loc = glGetUniformLocation(id, name);
     if (loc != -1) {
         glUniform1f(loc, value);
@@ -58,6 +60,7 @@ void ShaderProgram::SetUniform(const char *name, float value) const {
 }
 
 void ShaderProgram::SetUniform(const char *name, int value) const {
+    glUseProgram(id);
     GLint loc = glGetUniformLocation(id, name);
     if (loc != -1) {
         glUniform1i(loc, value);

@@ -1,6 +1,10 @@
 #include "Application.h"
 #include <cstdio>
 
+#include "Tranform.h"
+extern Tranform moveEarth;
+extern Tranform moveMoon;
+
 Application::Application(SceneManager& manager) : manager(manager), window(nullptr) {}
 
 Application::~Application() {
@@ -70,16 +74,41 @@ void Application::Run() {
 
     lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
+
         double currentTime = glfwGetTime();
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        static float angleE = 0.0f;   // fáze Země
+        static float angleM = 0.0f;   // fáze Měsíce
+
+
+        const float speedE = 0.8f;    // Země kolem Slunce
+        const float speedM = 2.0f;    // Měsíc kolem Země
+        const float radiusE = 2.5f;
+        const float radiusM = 3.5f;
+
+        angleE += (float)deltaTime * speedE;
+        angleM += (float)deltaTime * speedM;
+
+        float earthX = cosf(angleE) * radiusE;
+        float earthZ = sinf(angleE) * radiusE;
+
+        float moonX  = earthX + cosf(angleM) * radiusM;
+        float moonZ  = earthZ + sinf(angleM) * radiusM;
+
+
+        moveEarth = Tranform(earthX, 0.0f, earthZ);
+        moveMoon  = Tranform(moonX,  0.0f, moonZ);
+
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) manager.switchScene(0);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) manager.switchScene(1);
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) manager.switchScene(2);
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) manager.switchScene(3);
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) manager.switchScene(4);
 
-        // Vykresli aktuální scénu
+
         manager.drawCurrentScene();
         manager.update(deltaTime);
 

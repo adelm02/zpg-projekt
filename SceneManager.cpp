@@ -29,3 +29,7 @@ void SceneManager::update(float dt) {
         return;
     scenes[currentSceneIndex]->update(dt);
 }
+
+int SceneManager::getCurrentSceneIndex() {
+    return currentSceneIndex;
+}

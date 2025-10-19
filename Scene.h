@@ -13,6 +13,7 @@ public:
     void addObject(DrawableObject* obj);
     void drawAll();
     void update(float dt);
+
 };
 
 #endif // ZPGPROJ_SCENE_H

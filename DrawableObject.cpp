@@ -8,17 +8,16 @@ DrawableObject::DrawableObject(const Modell& model, ShaderProgram& shaderProgram
 
 void DrawableObject::draw()
 {
-    if (shaderProgram.useShaderProgram()) {
+    shaderProgram.useShaderProgram();
 
-        glm::mat4 modelMatrix = transformation.getMatrix();
-        // Poslat do shaderu
-        shaderProgram.SetUniform("model", modelMatrix);
-        shaderProgram.SetUniform("viewMatrix", Camera::getInstance()->getCamera());
-        shaderProgram.SetUniform("projectionMatrix", Camera::getInstance()->getProjection() );
-        shaderProgram.SetUniform("viewPos", Camera::getInstance()->getCamera());
+    glm::mat4 modelMatrix = transformation.getMatrix();
+    // Poslat do shaderu
+    shaderProgram.SetUniform("model", modelMatrix);
+    shaderProgram.SetUniform("viewMatrix", Camera::getInstance()->getCamera());
+    shaderProgram.SetUniform("projectionMatrix", Camera::getInstance()->getProjection() );
+    shaderProgram.SetUniform("viewPos", Camera::getInstance()->getCamera());
 
-        model.draw();
-    }
+    model.draw();
 }
 
 void DrawableObject::update(float dt) {

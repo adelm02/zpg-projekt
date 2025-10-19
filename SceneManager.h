@@ -19,6 +19,7 @@ public:
     void switchScene(int index);
     void drawCurrentScene();
     void update(float dt);
+    int getCurrentSceneIndex();
 };
 
 

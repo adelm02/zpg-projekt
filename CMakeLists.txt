@@ -99,6 +99,9 @@ add_executable(zpgproj
         Observer.h
         Controller.cpp
         Controller.h
+        Light.cpp
+        Light.h
+        triangle.h
 )
 
 # Include the GLFW, GLM, and GLEW directories
