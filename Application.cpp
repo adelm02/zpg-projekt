@@ -26,6 +26,7 @@ bool Application::init(int width, int height, const char* title) {
 
     lastTime = glfwGetTime();
     window = glfwCreateWindow(width, height, title, NULL, NULL);
+    glfwSetFramebufferSizeCallback(window, Application::window_size_callback);
 
     if (!window) {
         glfwTerminate();
@@ -68,6 +69,9 @@ void Application::window_iconify_callback(GLFWwindow* window, int iconified) {
 void Application::window_size_callback(GLFWwindow* window, int width, int height) {
     printf("resize %d, %d\n", width, height);
     glViewport(0, 0, width, height);
+
+    float aspect = (height > 0) ? (float)width / (float)height : 1.0f;
+    Camera::getInstance()->setAspect(aspect);
 }
 
 void Application::Run() {
@@ -107,6 +111,19 @@ void Application::Run() {
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) manager.switchScene(2);
         if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) manager.switchScene(3);
         if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) manager.switchScene(4);
+
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+            Camera::getInstance()->setFovDegrees(45.0f);
+            printf("FOV set to 45 deg\n");
+        }
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+            Camera::getInstance()->setFovDegrees(90.0f);
+            printf("FOV set to 90 deg\n");
+        }
+        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+            Camera::getInstance()->setFovDegrees(130.0f);
+            printf("FOV set to 130 deg\n");
+        }
 
 
         manager.drawCurrentScene();

@@ -29,7 +29,7 @@ void Camera::notify() {
 }
 
 glm::mat4 Camera::getProjection() {
-    return glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(fovDeg), aspect, 0.1f, 100.0f);
 }
 
 glm::vec3 Camera::getCameraPos() {
@@ -87,6 +87,12 @@ void Camera::camera_move(GLFWwindow *window, double xpos, double ypos) {
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     CameraFront = glm::normalize(direction);
     this->notify();
+}
+
+void Camera::setFovDegrees(float f) {
+    if (f < 1.0f)  f = 1.0f;
+    if (f > 179.0f) f = 179.0f;
+    fovDeg = f;
 }
 
 

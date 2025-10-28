@@ -19,6 +19,8 @@ public:
     void SetUniform(const char* name, const glm::vec3& vector) const;
     void SetUniform(const char* name, float value) const;
     void SetUniform(const char* name, int value) const;
+    void SetUniformArray3(const char* name, const glm::vec3* data, int count) const;
+    void SetUniformArray3(const char* name, const std::vector<glm::vec3>& data, int count) const;
     virtual void update();
 
 };

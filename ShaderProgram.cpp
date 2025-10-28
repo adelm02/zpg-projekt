@@ -67,6 +67,25 @@ void ShaderProgram::SetUniform(const char *name, int value) const {
     }
 }
 
+void ShaderProgram::SetUniformArray3(const char *name, const glm::vec3 *data, int count) const {
+
+    if (!name || !data || count <= 0) return;
+    glUseProgram(id);
+
+    std::string indexed0 = std::string(name) + "[0]";
+    GLint loc = glGetUniformLocation(id, indexed0.c_str());
+    if (loc != -1) {
+        glUniform3fv(loc, count, glm::value_ptr(data[0]));
+    } else {
+        fprintf(stderr, "Uniform array %s not found (expected %s)\n", name, indexed0.c_str());
+    }
+}
+
+void ShaderProgram::SetUniformArray3(const char *name, const std::vector<glm::vec3> &data, int count) const {
+    if (count > (int)data.size()) count = (int)data.size();
+    SetUniformArray3(name, data.data(), count);
+}
+
 void ShaderProgram::update() {
     this->useShaderProgram();
     Camera* cam = Camera::getInstance();

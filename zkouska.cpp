@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <__filesystem/perm_options.h>
+#include <cstdlib>
+#include <ctime>
 
 #include "Shader.h"
 #include "ShaderProgram.h"
@@ -18,6 +20,7 @@
 #include "tree.h"
 #include "sphere.h"
 #include "bushes.h"
+#include "Light.h"
 #include "suzi_smooth.h"
 #include "triangle.h"
 #include "plain.h"
@@ -36,13 +39,14 @@ Transformation tEarth;
 Transformation tMoon;
 
 
-
 int main() {
 
     SceneManager manager;
     Application app(manager);
     if (!app.init(800, 600, "ZPG")) return -1;
     GLFWwindow* window = app.getWindow();
+
+    std::srand(42); // simple deterministic seed for beginner-friendly random
 
 
     Shader vertex;
@@ -65,6 +69,20 @@ int main() {
     programLambert.addShader(fragment_lambert);
     programLambert.link();
 
+    const int N = 12;
+    glm::vec3 lightPos[N];
+    glm::vec3 lightColor[N];
+    glm::vec3 lightAtten[N];
+
+    for (int i = 0; i < N; ++i) {
+        float rx = (std::rand() / (float)RAND_MAX) * 90.0f;
+        float rz = (std::rand() / (float)RAND_MAX) * 40.0f;
+        float ry = 2.2f + (std::rand() / (float)RAND_MAX) * 1.4f;
+        lightPos[i]   = glm::vec3(rx, ry, rz);
+        lightColor[i] = glm::vec3(1.00f, 0.90f, 0.60f);
+        lightAtten[i] = glm::vec3(1.0f, 0.10f, 1.4f);
+    }
+
     programLambert.useShaderProgram();
     programLambert.SetUniform("lightPos", glm::vec3(10.0f, 10.0f, 10.0f));
     programLambert.SetUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -75,25 +93,36 @@ int main() {
     programPhong.addShader(vertex);
     programPhong.addShader(fragment_phong);
     programPhong.link();
+    programPhong.useShaderProgram();
+
 
     programPhong.useShaderProgram();
-    programPhong.SetUniform("lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
-    programPhong.SetUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     programPhong.SetUniform("objectColor", glm::vec3(0.385f, 0.647f, 0.812f));
+    programPhong.SetUniform("lightCount", N);
+    programPhong.SetUniformArray3("lightPos",   lightPos,   N);
+    programPhong.SetUniformArray3("lightColor", lightColor, N);
+    programPhong.SetUniformArray3("lightAtten", lightAtten, N);
     programPhong.SetUniform("viewPos", Camera::getInstance()->getCameraPos());
-    programPhong.update();
-
 
     ShaderProgram programBlinn;
     programBlinn.addShader(vertex);
     programBlinn.addShader(fragment_blinn);
     programBlinn.link();
+    programBlinn.useShaderProgram();
+
+    const int NB = 1;
+    glm::vec3 blinnPos [NB] = { glm::vec3(2.0, 0, -6) };
+    glm::vec3 blinnColor[NB] = { glm::vec3(1.0f, 1.0f, 1.0f) };
+    glm::vec3 blinnAtt [NB] = { glm::vec3(1.0f, 0.0f, 0.0f) };
 
     programBlinn.useShaderProgram();
-    programBlinn.SetUniform("lightPos", glm::vec3(10.0f, 10.0f, 10.0f));
-    programBlinn.SetUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    programBlinn.SetUniform("objectColor", glm::vec3(0.385f, 0.647f, 0.812f));
+    programBlinn.SetUniform("lightCount", NB);
+    programBlinn.SetUniformArray3("lightPos",   blinnPos,   NB);
+    programBlinn.SetUniformArray3("lightColor", blinnColor, NB);
+    programBlinn.SetUniformArray3("lightAtten", blinnAtt,   NB);
     programBlinn.SetUniform("viewPos", Camera::getInstance()->getCameraPos());
+    programBlinn.SetUniform("objectColor", glm::vec3(0.8f, 0.8f, 0.9f));
+
     programBlinn.update();
 
     ShaderProgram programConstant;
@@ -119,6 +148,24 @@ int main() {
     Modell pl;
     pl.loadData(plain, sizeof(plain)/sizeof(float), 6);
 
+
+    std::vector<Transformation*> fireflyTrans;
+    std::vector<DrawableObject*> fireflies;
+
+    for (int i = 0; i < N; ++i) {
+        Transformation* tf = new Transformation();
+        Scale* sFly = new Scale(0.12f, 0.12f, 0.12f);
+        Tranform* mFly = new Tranform(lightPos[i].x, lightPos[i].y, lightPos[i].z); // light position
+        tf->addTrans(sFly);
+        tf->addTrans(mFly);
+
+        DrawableObject* fly = new DrawableObject(koule, programConstant, *tf, glm::vec3(1.0f));
+
+        fireflyTrans.push_back(tf);
+        fireflies.push_back(fly);
+    }
+
+
     std::vector<Transformation*> transforms;
     std::vector<DrawableObject*> stromy;
     std::vector<DrawableObject*> bushes;
@@ -127,8 +174,8 @@ int main() {
     for (int i = 0; i < 50; i++) {
         float x = (i % 10) * 10.0f;
         float z = (i / 10) * 10.0f;
-        float x1 = ((i % 13) * 10.0f) + 5.0f;
-        float z1 = ((i / 13) * 10.0f) + 5.0f;
+        float x1 = x + 5.0f;
+        float z1 = z + 5.0f;
 
 
         Transformation* t = new Transformation();
@@ -144,10 +191,10 @@ int main() {
 
         transforms.push_back(tBush);
 
-        DrawableObject* stromek = new DrawableObject(strom, programLambert, *t);
+        DrawableObject* stromek = new DrawableObject(strom, programPhong, *t, glm::vec3(0.20f, 0.65f, 0.40f));
         stromy.push_back(stromek);
 
-        DrawableObject* bushi = new DrawableObject(bush, programLambert, *tBush);
+        DrawableObject* bushi = new DrawableObject(bush, programPhong, *tBush, glm::vec3(0.12f, 0.45f, 0.18f));
         bushes.push_back(bushi);
     }
 
@@ -173,11 +220,13 @@ int main() {
     Transformation middle;
     middle.addTrans(&stred);
 
-    Scale zem (200.0f, 1.0f, 200.0f);
+    Scale zem (50.0f, 1.0f, 30.0f);
     Transformation zemm;
     zemm.addTrans(&zem);
+    Tranform groundMove(45.0f, 0.0f, 20.0f);
+    zemm.addTrans(&groundMove);
 
-    // scale Earth and Moon (apply before translation so scale isn't affected by move)
+    //před trans jinak se rozbije
     Scale earthScale(0.6f, 0.6f, 0.6f);
     Scale moonScale(0.25f, 0.25f, 0.25f);
     tEarth.addTrans(&earthScale);
@@ -189,19 +238,16 @@ int main() {
     DrawableObject* moonObject  = new DrawableObject(koule, programPhong, tMoon);
 
 
-    DrawableObject* sphereRight = new DrawableObject(koule, programBlinn, tRight);
-    DrawableObject* sphereLeft = new DrawableObject(koule, programBlinn, tLeft);
-    DrawableObject* sphereUp = new DrawableObject(koule, programBlinn, tUp);
-    DrawableObject* sphereDown = new DrawableObject(koule, programBlinn, tDown);
+    DrawableObject* sphereRight = new DrawableObject(koule, programPhong, tRight);
+    DrawableObject* sphereLeft = new DrawableObject(koule, programPhong, tLeft);
+    DrawableObject* sphereUp = new DrawableObject(koule, programPhong, tUp);
+    DrawableObject* sphereDown = new DrawableObject(koule, programPhong, tDown);
 
-    DrawableObject* suzi = new DrawableObject(suzi_smoth, programBlinn, middle);
+    DrawableObject* triangle = new DrawableObject(koule, programBlinn, middle);
 
-    DrawableObject* triangle = new DrawableObject(tria, programConstant, middle);
-
-    DrawableObject* plain = new DrawableObject(pl, programLambert, zemm);
+    DrawableObject* plain = new DrawableObject(pl, programPhong, zemm, glm::vec3(0.27f, 0.25f, 0.15f));
 
     DrawableObject* sunObject = new DrawableObject(koule, programPhong, middle);
-
 
 
     static Scene scene1;
@@ -215,9 +261,13 @@ int main() {
         scene3.addObject(st);
     }
 
-
     for (auto &b : bushes) {
         scene3.addObject(b);
+    }
+
+
+    for (auto* f : fireflies) {
+        scene3.addObject(f);
     }
 
     scene1.addObject(triangle);
@@ -230,8 +280,6 @@ int main() {
     scene2.addObject(sphereLeft);
     scene2.addObject(sphereUp);
     scene2.addObject(sphereDown);
-
-    scene5.addObject(suzi);
 
     scene3.addObject(plain);
 
