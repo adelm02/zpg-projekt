@@ -104,6 +104,18 @@ add_executable(zpgproj
         triangle.h
 )
 
+
+target_include_directories(zpgproj PRIVATE
+        ${CMAKE_SOURCE_DIR}/Knihovny
+)
+add_custom_target(copy_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        ${CMAKE_BINARY_DIR}/assets)
+
+add_dependencies(zpgproj copy_assets)
+
+
 # Include the GLFW, GLM, and GLEW directories
 target_include_directories(zpgproj PRIVATE
         ${GLFW_INCLUDE_DIR}

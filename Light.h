@@ -5,10 +5,12 @@
 
 class Light {
 public:
+    int type;
     glm::vec3 position;
     glm::vec3 color;
     glm::vec3 atten;
 
+    Light(int typ, glm::vec3 pos, glm::vec3 color, glm::vec3 atte);
     Light(glm::vec3 pos, glm::vec3 color, glm::vec3 att);
 };
 

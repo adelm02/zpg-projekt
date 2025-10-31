@@ -1,13 +1,43 @@
+// Scene.cpp
 #include "Scene.h"
-
-#include <iostream>
-#include <ostream>
+#include "Camera.h"
+#include <algorithm>
 
 void Scene::addObject(DrawableObject* obj) {
     objects.push_back(obj);
 }
 
+void Scene::setGlobalUniforms(ShaderProgram* sp) {
+    sp->SetUniform("viewMatrix",      Camera::getInstance()->getCamera());
+    sp->SetUniform("projectionMatrix",Camera::getInstance()->getProjection());
+    sp->SetUniform("viewPos",         Camera::getInstance()->getCameraPos());
+}
+
+void Scene::applyLightsTo(ShaderProgram* sp) {
+    const int nol = std::min((int)lights.size(), 30);
+    sp->SetUniform("nol", nol);
+    sp->SetUniform("lightCount", nol);
+    for (int i = 0; i < nol; ++i) {
+        const Light& L = lights[i];
+        std::string base = "lights[" + std::to_string(i) + "]";
+
+        sp->SetUniform((base + ".type").c_str(), L.type);
+        sp->SetUniform((base + ".position").c_str(), L.position);
+        sp->SetUniform((base + ".color").c_str(),    L.color);
+        sp->SetUniform((base + ".atten").c_str(),    L.atten);
+    }
+}
+
 void Scene::drawAll() {
+    // 1) Jednou za průchod: nahraj globální uniformy a světla do všech „osvětlovacích“ shaderů
+    for (auto* sp : lightingShaders) {
+        if (!sp) continue;
+        sp->useShaderProgram();
+        setGlobalUniforms(sp);
+        applyLightsTo(sp);
+    }
+
+    // 2) Vykresli všechny objekty (per-objekt zůstává v DrawableObject::draw)
     for (auto* obj : objects) {
         if (obj) obj->draw();
     }
