@@ -8,9 +8,9 @@ void Scene::addObject(DrawableObject* obj) {
 }
 
 void Scene::setGlobalUniforms(ShaderProgram* sp) {
-    sp->SetUniform("viewMatrix",      Camera::getInstance()->getCamera());
+    sp->SetUniform("viewMatrix",Camera::getInstance()->getCamera());
     sp->SetUniform("projectionMatrix",Camera::getInstance()->getProjection());
-    sp->SetUniform("viewPos",         Camera::getInstance()->getCameraPos());
+    sp->SetUniform("viewPos",Camera::getInstance()->getCameraPos());
 }
 
 void Scene::applyLightsTo(ShaderProgram* sp) {
@@ -23,15 +23,14 @@ void Scene::applyLightsTo(ShaderProgram* sp) {
 
         sp->SetUniform((base + ".type").c_str(), L.type);
         sp->SetUniform((base + ".position").c_str(), L.position);
-        sp->SetUniform((base + ".color").c_str(),    L.color);
-        sp->SetUniform((base + ".atten").c_str(),    L.atten);
+        sp->SetUniform((base + ".color").c_str(), L.color);
+        sp->SetUniform((base + ".atten").c_str(), L.atten);
         sp->SetUniform((base + ".direction").c_str(), L.direction);
         sp->SetUniform((base + ".cutoff").c_str(), L.cutoff);
     }
 }
 
 void Scene::drawAll() {
-    // 1) Jednou za průchod: nahraj globální uniformy a světla do všech „osvětlovacích“ shaderů
     for (auto* sp : lightingShaders) {
         if (!sp) continue;
         sp->useShaderProgram();
@@ -39,7 +38,6 @@ void Scene::drawAll() {
         applyLightsTo(sp);
     }
 
-    // 2) Vykresli všechny objekty (per-objekt zůstává v DrawableObject::draw)
     for (auto* obj : objects) {
         if (obj) obj->draw();
     }

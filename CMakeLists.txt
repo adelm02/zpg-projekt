@@ -102,6 +102,8 @@ add_executable(zpgproj
         Light.cpp
         Light.h
         triangle.h
+        Material.cpp
+        Material.h
 )
 
 

@@ -16,7 +16,7 @@ void Shader::Compile(){
 
         glShaderSource(vertex_shader, 1, &source, NULL);
         glCompileShader(vertex_shader);
-        //kontola vertex shaderu
+
         GLint success;
         glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
         if (success == 0) {

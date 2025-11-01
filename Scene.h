@@ -22,9 +22,9 @@ public:
 private:
     std::vector<DrawableObject*> objects;
 
-    // --- NOVÉ ---
-    std::vector<Light>            lights;
-    std::vector<ShaderProgram*>   lightingShaders;
+
+    std::vector<Light> lights;
+    std::vector<ShaderProgram*> lightingShaders;
 
     void applyLightsTo(ShaderProgram* sp);
     void setGlobalUniforms(ShaderProgram* sp);

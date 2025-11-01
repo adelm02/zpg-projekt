@@ -44,16 +44,14 @@ bool Modell::loadOBJ(const std::string& path)
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    // Zjisti base_dir pro .mtl, ale OBJ načti pomocí plné cesty `path`
     std::string basedir;
     if (auto pos = path.find_last_of("/\\"); pos != std::string::npos) {
-        basedir = path.substr(0, pos + 1); // např. "assets/"
+        basedir = path.substr(0, pos + 1);
     }
 
     bool ok = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
-                               path.c_str(),                                // plná cesta k .obj
-                               basedir.empty() ? nullptr : basedir.c_str(), // kde hledat .mtl/textury
-                               /*triangulate*/ true);
+                               path.c_str(),
+                               basedir.empty() ? nullptr : basedir.c_str(), true);
     if (!warn.empty()) std::cerr << "[tinyobj] " << warn << "\n";
     if (!ok) {
         std::cerr << "[tinyobj] " << err << " (path='" << path << "')" << "\n";
@@ -81,6 +79,18 @@ bool Modell::loadOBJ(const std::string& path)
         }
     }
 
-    loadData(verts.data(), (int)verts.size(), 6); // pos(3) + normal(3)
+    loadData(verts.data(), (int)verts.size(), 6);
+
+    if (!materials.empty()) {
+        const auto& m = materials[0];
+        material.ra = glm::vec3(m.ambient[0], m.ambient[1], m.ambient[2]);
+        material.rd = glm::vec3(m.diffuse[0], m.diffuse[1], m.diffuse[2]);
+        material.rs = glm::vec3(m.specular[0], m.specular[1], m.specular[2]);
+        material.h  = m.shininess;
+    }
     return true;
+}
+
+Material & Modell::getMaterial() {
+    return material;
 }

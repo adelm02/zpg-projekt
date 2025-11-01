@@ -60,6 +60,7 @@ void Camera::camera_move(GLFWwindow *window, double xpos, double ypos) {
         return;
     }
 
+
     if (firstMouse)
     {
         lastX = xpos;

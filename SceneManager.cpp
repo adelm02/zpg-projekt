@@ -81,7 +81,7 @@ Scene* SceneManager::getCurrentScene() {
 void SceneManager::initializeScenes() {
     std::srand(42);
 
-    // Create shaders and store them
+
     Shader* vertex = new Shader();
     vertex->createShaderFromFile(GL_VERTEX_SHADER, "shaders/vertex.vert");
 
@@ -100,7 +100,7 @@ void SceneManager::initializeScenes() {
     Shader* fragment_phong_light = new Shader();
     fragment_phong_light->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/fragment_phong_light.frag");
 
-    // Create shader programs and store them
+
     ShaderProgram* programLambert = new ShaderProgram();
     programLambert->addShader(*vertex);
     programLambert->addShader(*fragment_lambert);
@@ -126,7 +126,6 @@ void SceneManager::initializeScenes() {
     programConstant->addShader(*fragC);
     programConstant->link();
 
-    // Load models and store them
     Modell* strom = new Modell();
     strom->loadData(tree, sizeof(tree)/sizeof(float), 6);
     Modell* bush = new Modell();
@@ -159,7 +158,7 @@ void SceneManager::initializeScenes() {
                             glm::radians(25.0f),
                             glm::vec3(1.0f, 0.09f, 0.032f))); //atten
 
-    // Setup lights for scene4
+
     scene4->addLight( Light(glm::vec3(5.0f, 6.0f, 5.0f),
                            glm::vec3(1.0f, 0.95f, 0.85f),
                            glm::vec3(1.0f, 0.14f, 0.07f)) );
@@ -265,18 +264,23 @@ void SceneManager::initializeScenes() {
     scales.push_back(mini);
     transformations.push_back(minii);
 
-    // Create transformation objects for scene 1
+
     Tranform* stred = new Tranform(0.f, 0.f, 0.f);
     Transformation* middle = new Transformation();
     middle->addTrans(stred);
 
-    // Setup Earth and Moon for scene4
+
     Scale* earthScale = new Scale(0.6f, 0.6f, 0.6f);
     Scale* moonScale = new Scale(0.25f, 0.25f, 0.25f);
     tEarth.addTrans(earthScale);
     tEarth.addTrans(&moveEarth);
     tMoon.addTrans(moonScale);
     tMoon.addTrans(&moveMoon);
+
+
+    DrawableObject* formula1 = new DrawableObject(*formula, *programBlinn, *minii);
+    formula1->setMaterial(formula->getMaterial());
+    scene1->addObject(formula1);
 
     DrawableObject* earthObject = new DrawableObject(*koule, *programPhongLight, tEarth);
     DrawableObject* moonObject = new DrawableObject(*koule, *programPhongLight, tMoon);
@@ -291,7 +295,7 @@ void SceneManager::initializeScenes() {
     drawableObjects.push_back(moonObject);
     drawableObjects.push_back(idk);
 
-    // Setup scene1 objects - reuse zemm transformation for teapot
+
     Scale* zem2 = new Scale(50.0f, 1.0f, 30.0f);
     Tranform* groundMove2 = new Tranform(45.0f, 0.0f, 20.0f);
     Transformation* zemm2 = new Transformation();
@@ -299,7 +303,6 @@ void SceneManager::initializeScenes() {
     zemm2->addTrans(groundMove2);
 
     DrawableObject* triangleObj = new DrawableObject(*koule, *programBlinn, *middle);
-    DrawableObject* formula1 = new DrawableObject(*formula, *programBlinn, *minii, glm::vec3(0.8f, 0.7f, 0.6f));
     scene1->addObject(triangleObj);
     scene1->addObject(formula1);
 
@@ -332,7 +335,7 @@ void SceneManager::initializeScenes() {
     models.push_back(pl);
     models.push_back(formula);
 
-    // Add all scenes to the manager
+
     addScene(scene1);
     addScene(scene2);
     addScene(scene3);

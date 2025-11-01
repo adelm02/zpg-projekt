@@ -12,6 +12,8 @@ public:
     Controller(GLFWwindow* window);
     static void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
+    static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
 };
 
 
