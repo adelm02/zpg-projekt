@@ -83,22 +83,22 @@ void SceneManager::initializeScenes() {
 
 
     Shader* vertex = new Shader();
-    vertex->createShaderFromFile(GL_VERTEX_SHADER, "shaders/vertex.vert");
+    vertex->createShaderFromFile(GL_VERTEX_SHADER, "../shaders/vertex.vert");
 
     Shader* fragment_lambert = new Shader();
-    fragment_lambert->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/lambert.frag");
+    fragment_lambert->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/lambert.frag");
 
     Shader* fragment_phong = new Shader();
-    fragment_phong->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/phong.frag");
+    fragment_phong->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/phong.frag");
 
     Shader* fragment_blinn = new Shader();
-    fragment_blinn->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/blinn.frag");
+    fragment_blinn->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/blinn.frag");
 
     Shader* fragC = new Shader();
-    fragC->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/fragmentColor.frag");
+    fragC->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/fragmentColor.frag");
 
     Shader* fragment_phong_light = new Shader();
-    fragment_phong_light->createShaderFromFile(GL_FRAGMENT_SHADER, "shaders/fragment_phong_light.frag");
+    fragment_phong_light->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/fragment_phong_light.frag");
 
 
     ShaderProgram* programLambert = new ShaderProgram();
@@ -171,18 +171,19 @@ void SceneManager::initializeScenes() {
         float rz = (std::rand() / (float)RAND_MAX) * 40.0f;
         float ry = 2.2f + (std::rand() / (float)RAND_MAX) * 1.4f;
 
-        Light L(
-            glm::vec3(rx, ry, rz),
-            glm::vec3(1.00f, 1.0f, 1.0f),
-            glm::vec3(1.0f, 0.22f, 0.20f)
-        );
+    Light L(
+        glm::vec3(rx, ry, rz),
+        glm::vec3(1.00f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.22f, 0.20f)
+    );
+
         scene3->addLight(L);
     }
     
 
     scene3->addLight( Light(glm::vec3(0.0f, 0.0f, 0.0f), //pos
                             glm::vec3(0.0f, 0.0f, -1.0f), //dir
-                            glm::vec3(1.0f, 1.0f, 0.9f),
+                            glm::vec3(1.0f, 1.0f, 1.0f),
                             glm::radians(25.0f),
                             glm::vec3(1.0f, 0.09f, 0.032f))); //atten
 
@@ -200,7 +201,7 @@ void SceneManager::initializeScenes() {
         tf->addTrans(sFly);
         tf->addTrans(mFly);
 
-        DrawableObject* fly = new DrawableObject(*koule, *programConstant, *tf, glm::vec3(1.0f));
+        DrawableObject* fly = new DrawableObject(*koule, *programConstant, *tf, glm::vec3(1.0f,1.0f,1.0f));
         scene3->addObject(fly);
 
         scales.push_back(sFly);

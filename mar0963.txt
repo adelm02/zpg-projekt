@@ -1,0 +1,3 @@
+Pomocí rand vygeneruju random souřadnice pro každou světlušku ve scéně, proces opakuji pro zvolený počet světlušek (N=6), tím vznikne 6 světlušek s různým umístěním.
+Pro každou světlušku je vytvořená malá koule, která má ambientní barvu 1.1.1, aby šla dobře vidět ve tmě, difuzni slozka je nastavena na teplejší světlo, vykreslena constant shaderem aby ji světlo nezkreslovalo (není třeba).
+Utlum nastavujeme na rychly slabnouci pri rustu vzdalenosti. Hodnoty jsem čerpala z OpenGL dokumentace https://learnopengl.com/Lighting/Light-casters

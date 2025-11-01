@@ -87,7 +87,16 @@ bool Modell::loadOBJ(const std::string& path)
         material.rd = glm::vec3(m.diffuse[0], m.diffuse[1], m.diffuse[2]);
         material.rs = glm::vec3(m.specular[0], m.specular[1], m.specular[2]);
         material.h  = m.shininess;
+
+        printf("%f %f %f\n", m.ambient[0], m.ambient[1], m.ambient[2]);
+        printf("%f %f %f\n", m.diffuse[0], m.diffuse[1], m.diffuse[2]);
+
+        printf("%f %f %f\n", m.specular[0], m.specular[1], m.specular[2]);
+
+
     }
+
+
     return true;
 }
 
