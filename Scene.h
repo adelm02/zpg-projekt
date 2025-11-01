@@ -17,6 +17,7 @@ public:
     void addLight(const Light& l) { lights.push_back(l); }
     void clearLights() { lights.clear(); }
     void registerLightingShader(ShaderProgram* sp) { lightingShaders.push_back(sp); }
+    void updateLight(int index, const Light& l);
 
 private:
     std::vector<DrawableObject*> objects;

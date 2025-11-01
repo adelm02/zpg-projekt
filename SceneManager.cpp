@@ -71,6 +71,13 @@ int SceneManager::getCurrentSceneIndex() {
     return currentSceneIndex;
 }
 
+Scene* SceneManager::getCurrentScene() {
+    if (currentSceneIndex >= 0 && currentSceneIndex < (int)scenes.size()) {
+        return scenes[currentSceneIndex];
+    }
+    return nullptr;
+}
+
 void SceneManager::initializeScenes() {
     std::srand(42);
 
@@ -130,10 +137,10 @@ void SceneManager::initializeScenes() {
     tria->loadData(triangle, sizeof(triangle)/sizeof(float), 6);
     Modell* pl = new Modell();
     pl->loadData(plain, sizeof(plain)/sizeof(float), 6);
-    Modell* cube = new Modell();
-    cube->loadOBJ("assets/cube.obj");
+    Modell* formula = new Modell();
+    formula->loadOBJ("assets/formula1.obj");
 
-    // Create scenes and store them
+
     Scene* scene1 = new Scene();
     Scene* scene2 = new Scene();
     Scene* scene3 = new Scene();
@@ -143,8 +150,14 @@ void SceneManager::initializeScenes() {
     scene4->registerLightingShader(programPhongLight);
     scene1->registerLightingShader(programBlinn);
 
-    // Setup lights for scene1
+
     scene1->addLight( Light(0, glm::vec3(-0.3f, -1.0f, -0.2f), glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) );
+
+    scene1->addLight( Light(glm::vec3(0.0f, 0.0f, 0.0f), //pos
+                            glm::vec3(0.0f, 0.0f, -1.0f), //dir
+                            glm::vec3(1.0f, 1.0f, 0.9f),
+                            glm::radians(25.0f),
+                            glm::vec3(1.0f, 0.09f, 0.032f))); //atten
 
     // Setup lights for scene4
     scene4->addLight( Light(glm::vec3(5.0f, 6.0f, 5.0f),
@@ -152,7 +165,7 @@ void SceneManager::initializeScenes() {
                            glm::vec3(1.0f, 0.14f, 0.07f)) );
 
     // Setup lights for scene3 (fireflies)
-    const int N = 12;
+    const int N = 6;
     std::srand(42);
     for (int i = 0; i < N; ++i) {
         float rx = (std::rand() / (float)RAND_MAX) * 90.0f;
@@ -166,6 +179,13 @@ void SceneManager::initializeScenes() {
         );
         scene3->addLight(L);
     }
+    
+
+    scene3->addLight( Light(glm::vec3(0.0f, 0.0f, 0.0f), //pos
+                            glm::vec3(0.0f, 0.0f, -1.0f), //dir
+                            glm::vec3(1.0f, 1.0f, 0.9f),
+                            glm::radians(25.0f),
+                            glm::vec3(1.0f, 0.09f, 0.032f))); //atten
 
     // Create firefly objects
     std::srand(42);
@@ -227,10 +247,13 @@ void SceneManager::initializeScenes() {
 
     // Create ground plane
     Scale* zem = new Scale(50.0f, 1.0f, 30.0f);
+    Scale* mini = new Scale(.5f, .5f, .5f);
     Tranform* groundMove = new Tranform(45.0f, 0.0f, 20.0f);
     Transformation* zemm = new Transformation();
+    Transformation* minii = new Transformation();
     zemm->addTrans(zem);
     zemm->addTrans(groundMove);
+    minii->addTrans(mini);
 
     DrawableObject* plain = new DrawableObject(*pl, *programPhongLight, *zemm, glm::vec3(0.27f, 0.25f, 0.15f));
     scene3->addObject(plain);
@@ -239,6 +262,8 @@ void SceneManager::initializeScenes() {
     tranforms.push_back(groundMove);
     transformations.push_back(zemm);
     drawableObjects.push_back(plain);
+    scales.push_back(mini);
+    transformations.push_back(minii);
 
     // Create transformation objects for scene 1
     Tranform* stred = new Tranform(0.f, 0.f, 0.f);
@@ -274,9 +299,9 @@ void SceneManager::initializeScenes() {
     zemm2->addTrans(groundMove2);
 
     DrawableObject* triangleObj = new DrawableObject(*koule, *programBlinn, *middle);
-    DrawableObject* teapotObj = new DrawableObject(*cube, *programBlinn, *zemm2, glm::vec3(0.8f, 0.7f, 0.6f));
+    DrawableObject* formula1 = new DrawableObject(*formula, *programBlinn, *minii, glm::vec3(0.8f, 0.7f, 0.6f));
     scene1->addObject(triangleObj);
-    scene1->addObject(teapotObj);
+    scene1->addObject(formula1);
 
     tranforms.push_back(stred);
     transformations.push_back(middle);
@@ -284,7 +309,7 @@ void SceneManager::initializeScenes() {
     tranforms.push_back(groundMove2);
     transformations.push_back(zemm2);
     drawableObjects.push_back(triangleObj);
-    drawableObjects.push_back(teapotObj);
+    drawableObjects.push_back(formula1);
 
     // Store all the objects before adding scenes
     shaders.push_back(vertex);
@@ -305,7 +330,7 @@ void SceneManager::initializeScenes() {
     models.push_back(koule);
     models.push_back(tria);
     models.push_back(pl);
-    models.push_back(cube);
+    models.push_back(formula);
 
     // Add all scenes to the manager
     addScene(scene1);

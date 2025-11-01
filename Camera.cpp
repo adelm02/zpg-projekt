@@ -36,6 +36,10 @@ glm::vec3 Camera::getCameraPos() {
     return this->CameraPosition;
 }
 
+glm::vec3 Camera::getDirection() {
+    return CameraFront;
+}
+
 void Camera::inputs(GLFWwindow *window, int key, int action) {
     const float cameraSpeed = 0.5f;
     if (key==GLFW_KEY_W && (action==GLFW_PRESS || action==GLFW_REPEAT)) {

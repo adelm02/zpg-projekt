@@ -6,7 +6,7 @@
 #define ZPGPROJ_SCENEMANAGER_H
 #include <vector>
 
-#include "scene.h"
+#include "Scene.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Modell.h"
@@ -40,6 +40,7 @@ public:
     void drawCurrentScene();
     void update(float dt);
     int getCurrentSceneIndex();
+    Scene* getCurrentScene();
     
     void initializeScenes();
 };

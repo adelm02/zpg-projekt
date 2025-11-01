@@ -1,11 +1,13 @@
 #include "Application.h"
 #include <cstdio>
+#include "Light.h"
 
 #include "Tranform.h"
 extern Tranform moveEarth;
 extern Tranform moveMoon;
 
-Application::Application(SceneManager& manager) : manager(manager), window(nullptr) {}
+Application::Application(SceneManager& manager) : manager(manager), window(nullptr),
+    flashlightOn(false), fKeyPressed(false) {}
 
 Application::~Application() {
     terminate();
@@ -131,7 +133,45 @@ void Application::Run() {
 
         glEnable(GL_DEPTH_TEST);
 
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !fKeyPressed) {
+            flashlightOn = !flashlightOn;
+            fKeyPressed = true;
+            printf("Flashlight: %s\n", flashlightOn ? "On" : "Off");
+        }
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
+            fKeyPressed = false;
+        }
+
+        updateFlashlight();
+
         glfwPollEvents();
         glfwSwapBuffers(window);
+    }
+}
+
+void Application::updateFlashlight() {
+    glm::vec3 camPos = Camera::getInstance()->getCameraPos();
+    glm::vec3 camDir = Camera::getInstance()->getDirection();
+
+    //create light- (if off, intensity 0))
+    Light flashlight(
+        camPos,
+        camDir,
+        flashlightOn ? glm::vec3(1.0f, 1.0f, 0.9f) : glm::vec3(0.0f), // color(or black)
+        glm::radians(25.0f), //angle
+        glm::vec3(1.0f, 0.09f, 0.032f) //atten
+    );
+
+    // if scene has flashlight == actualize
+    Scene* currentScene = manager.getCurrentScene();
+    if (currentScene) {
+        int sceneIndex = manager.getCurrentSceneIndex();
+
+        if (sceneIndex == 0) {
+            currentScene->updateLight(1, flashlight);
+        }
+        else if (sceneIndex == 2) {
+            currentScene->updateLight(6, flashlight);
+        }
     }
 }

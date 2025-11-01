@@ -42,6 +42,7 @@ public:
     void notify();
     glm::mat4 getProjection();
     glm::vec3 getCameraPos();
+    glm::vec3 getDirection();
     void inputs(GLFWwindow* window, int key, int action);
     void camera_move(GLFWwindow* window, double xpos, double ypos);
     void setAspect(float a) { aspect = a; }

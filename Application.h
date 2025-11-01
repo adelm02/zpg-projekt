@@ -14,6 +14,8 @@ private:
     GLFWwindow* window;
     SceneManager& manager;
     double lastTime = 0.0;
+    bool flashlightOn = false;
+    bool fKeyPressed = false;
 
 public:
     Application(SceneManager& manager);
@@ -29,6 +31,7 @@ public:
     void Run();
     bool init(int width, int height, const char* title);
     void terminate();
+    void updateFlashlight();
 
     GLFWwindow* getWindow() const { return window; }
 };

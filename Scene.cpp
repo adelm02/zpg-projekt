@@ -25,6 +25,8 @@ void Scene::applyLightsTo(ShaderProgram* sp) {
         sp->SetUniform((base + ".position").c_str(), L.position);
         sp->SetUniform((base + ".color").c_str(),    L.color);
         sp->SetUniform((base + ".atten").c_str(),    L.atten);
+        sp->SetUniform((base + ".direction").c_str(), L.direction);
+        sp->SetUniform((base + ".cutoff").c_str(), L.cutoff);
     }
 }
 
@@ -46,5 +48,11 @@ void Scene::drawAll() {
 void Scene::update(float dt) {
     for (auto* obj : objects) {
         if (obj) obj->update(dt);
+    }
+}
+
+void Scene::updateLight(int index, const Light &l) {
+    if (index >= 0 && index < (int)lights.size()) {
+        lights[index] = l;
     }
 }
