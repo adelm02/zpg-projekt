@@ -33,7 +33,7 @@ uniform vec3 objectColor;
 vec3 applyPoint(Light l, vec3 N, vec3 V) {
     vec3 L = normalize(l.position - FragPos);
     float d = length(l.position - FragPos);
-    float f = 1.0 / max((l.atten.x + l.atten.y * d + l.atten.z * d * d), 0.001);
+    float f = 1.0 / max((l.atten.x + l.atten.y * d + l.atten.z * d * d), 0.001); //light is getting lower with distance
 
     float diff = max(dot(N, L), 0.0);
     vec3 R = reflect(-L, N);

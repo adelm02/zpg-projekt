@@ -47,6 +47,7 @@ public:
     void camera_move(GLFWwindow* window, double xpos, double ypos);
     void setAspect(float a) { aspect = a; }
     void setFovDegrees(float f);
+    void setFirstMouse(bool value) { firstMouse = value; }
     float fovDeg = 60.0f;
 
 

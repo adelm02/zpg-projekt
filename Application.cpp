@@ -155,8 +155,7 @@ void Application::updateFlashlight() {
 
     //create light- (if off, intensity 0))
     Light flashlight(
-        camPos,
-        camDir,
+        camPos, camDir,
         flashlightOn ? glm::vec3(1.0f, 1.0f, 0.9f) : glm::vec3(0.0f), // color(or black)
         glm::radians(25.0f), //angle
         glm::vec3(1.0f, 0.09f, 0.032f) //atten

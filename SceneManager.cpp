@@ -39,6 +39,7 @@ SceneManager::~SceneManager() {
     for (auto* obj : models) delete obj;
     for (auto* obj : shaderPrograms) delete obj;
     for (auto* obj : shaders) delete obj;
+    for (auto* obj : myTextures) delete obj;
 }
 
 void SceneManager::addScene(Scene* scene) {
@@ -138,6 +139,13 @@ void SceneManager::initializeScenes() {
     pl->loadData(plain, sizeof(plain)/sizeof(float), 6);
     Modell* formula = new Modell();
     formula->loadOBJ("assets/formula1.obj");
+
+    Texture* grassTexture = new Texture();
+    if (!grassTexture->loadFromFile("assets/grass.png")) {
+        std::cerr << "Chyba: Nelze nacist texturu" << std::endl;
+        delete grassTexture;
+        grassTexture = nullptr;
+    }
 
 
     Scene* scene1 = new Scene();
@@ -256,6 +264,7 @@ void SceneManager::initializeScenes() {
     minii->addTrans(mini);
 
     DrawableObject* plain = new DrawableObject(*pl, *programPhongLight, *zemm, glm::vec3(0.27f, 0.25f, 0.15f));
+    plain->setTexture(grassTexture);
     scene3->addObject(plain);
 
     scales.push_back(zem);
@@ -335,6 +344,9 @@ void SceneManager::initializeScenes() {
     models.push_back(tria);
     models.push_back(pl);
     models.push_back(formula);
+
+
+    myTextures.push_back(grassTexture);
 
 
     addScene(scene1);

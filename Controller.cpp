@@ -25,14 +25,20 @@ void Controller::mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 }
 
 
-
 void Controller::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
 
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) { // Zkontrolujte, zda je tlačítko pravé
+
+        if (action == GLFW_PRESS) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            // NUTNÉ: Říct kameře, že příští pohyb bude "první"
+            Camera::getInstance()->setFirstMouse(true);
+
+        } else if (action == GLFW_RELEASE) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            // NUTNÉ: I po puštění říct, že příští stisk zahájí "první" pohyb
+            Camera::getInstance()->setFirstMouse(true);
+        }
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {

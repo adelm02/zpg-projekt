@@ -104,6 +104,9 @@ add_executable(zpgproj
         triangle.h
         Material.cpp
         Material.h
+        Texture.cpp
+        Texture.h
+        stb_image.h
 )
 
 

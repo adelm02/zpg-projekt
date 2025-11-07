@@ -2,7 +2,7 @@
 const int MAX_LIGHTS = 30;
 
 struct Light {
-    int   type;        // 0=directional, 1=point, 2=spotlight
+    int   type;
     vec3  position;
     vec3  color;
     vec3  atten;
@@ -12,6 +12,7 @@ struct Light {
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
@@ -20,6 +21,9 @@ uniform int nol;
 
 uniform vec3 objectColor;
 uniform vec3 viewPos;
+
+uniform sampler2D diffuseTexture;
+uniform bool useTexture;
 
 vec3 applyPoint(Light l, vec3 N, vec3 V) {
     vec3  L = normalize(l.position - FragPos);
@@ -74,22 +78,15 @@ vec3 applySpotlight(Light l, vec3 N, vec3 V) {
     vec3 L = normalize(l.position - FragPos);
     float d = length(l.position - FragPos);
 
-
     vec3 spotDir = normalize(-l.direction);
-
-
     float theta = dot(L, spotDir);
     float cutoffCos = cos(l.cutoff);
-
 
     if (theta < cutoffCos) {
         return vec3(0.0);
     }
 
-
     float intensity = smoothstep(cutoffCos, cutoffCos + 0.1, theta);
-
-
     float denom = l.atten.x + l.atten.y * d + l.atten.z * d * d;
     float f = 1.0 / max(denom, 0.001);
 
@@ -129,6 +126,12 @@ void main()
         }
     }
 
-    FragColor = vec4(result * objectColor, 1.0);
-}
+    vec3 baseColor;
+    if (useTexture) {
+        baseColor = texture(diffuseTexture, TexCoord).rgb;
+    } else {
+        baseColor = objectColor;
+    }
 
+    FragColor = vec4(result * baseColor, 1.0);
+}

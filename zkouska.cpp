@@ -3,6 +3,8 @@
 #include "Tranform.h"
 #include "Transformation.h"
 
+
+
 // Global variables for Earth and Moon transformations
 Tranform moveEarth(5.0f, 0.0f, 0.0f);
 Tranform moveMoon(6.2f, 0.0f, 0.0f);

@@ -3,13 +3,17 @@
 
 #include "Camera.h"
 
-DrawableObject::DrawableObject(const Modell &model, ShaderProgram &shaderProgram, Transformation &transformation,
-    glm::vec3 color)
-    : model(model), shaderProgram(shaderProgram), transformation(transformation), color(color), material() {}
-
+DrawableObject::DrawableObject(const Modell& model, ShaderProgram& shaderProgram, Transformation& transformation, glm::vec3 color)
+    : model(model), shaderProgram(shaderProgram), transformation(transformation), color(color), texture(nullptr) {
+    this->material = Material();
+    this->material.rd = color;
+}
 
 DrawableObject::DrawableObject(const Modell& model, ShaderProgram& shaderProgram, Transformation& transformation)
-    : model(model), shaderProgram(shaderProgram), transformation(transformation), material() {}
+    : model(model), shaderProgram(shaderProgram), transformation(transformation), texture(nullptr) {
+    this->material = Material();
+    this->color = material.rd;
+}
 
 void DrawableObject::draw()
 {
@@ -21,14 +25,24 @@ void DrawableObject::draw()
     shaderProgram.SetUniform("projectionMatrix", Camera::getInstance()->getProjection());
     shaderProgram.SetUniform("viewPos", Camera::getInstance()->getCameraPos());
     shaderProgram.SetUniform("objectColor", color);
-    
+
     shaderProgram.SetUniform("material.ra", material.ra);
     shaderProgram.SetUniform("material.rd", material.rd);
     shaderProgram.SetUniform("material.rs", material.rs);
     shaderProgram.SetUniform("material.h", material.h);
 
+    if (texture != nullptr && model.getHasTexCoords()) {
+        glActiveTexture(GL_TEXTURE0);
+        texture->bind(0);
+        shaderProgram.SetUniform("diffuseTexture", 0);
+        shaderProgram.SetUniform("useTexture", true);
+    } else {
+        shaderProgram.SetUniform("useTexture", false);
+    }
+
     model.draw();
 }
+
 
 void DrawableObject::update(float dt) {
     transformation.update(dt);

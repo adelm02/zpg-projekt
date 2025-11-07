@@ -30,6 +30,7 @@ private:
     std::vector<DrawableObject*> drawableObjects;
     std::vector<Scale*> scales;
     std::vector<Tranform*> tranforms;
+    std::vector<Texture*> myTextures;
 
 public:
     SceneManager();
