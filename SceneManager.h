@@ -1,36 +1,27 @@
-//
-// Created by Adéla Martynková on 05.10.2025.
-//
-
 #ifndef ZPGPROJ_SCENEMANAGER_H
 #define ZPGPROJ_SCENEMANAGER_H
+
 #include <vector>
-
 #include "Scene.h"
-#include "Shader.h"
-#include "ShaderProgram.h"
-#include "Modell.h"
-#include "Transformation.h"
-#include "Scale.h"
-#include "Tranform.h"
-#include "DrawableObject.h"
-
+#include "ResourceManager.h"
+#include "Firefly.h"
+#include "Rotate.h"
 
 class SceneManager {
 private:
     std::vector<Scene*> scenes;
     int currentSceneIndex = 0;
+    
+    ResourceManager resourceManager;
+    
 
-    // Persistent objects that need to outlive initializeScenes()
-    std::vector<Shader*> shaders;
-    std::vector<ShaderProgram*> shaderPrograms;
-    std::vector<Modell*> models;
-    std::vector<Scene*> ownedScenes;
-    std::vector<Transformation*> transformations;
     std::vector<DrawableObject*> drawableObjects;
+    std::vector<Transformation*> transformations;
     std::vector<Scale*> scales;
     std::vector<Tranform*> tranforms;
-    std::vector<Texture*> myTextures;
+    std::vector<Rotate*> rotations;
+    std::vector<Firefly*> fireflies;
+    std::vector<Scene*> ownedScenes;
 
 public:
     SceneManager();
@@ -44,8 +35,13 @@ public:
     Scene* getCurrentScene();
     
     void initializeScenes();
+
+private:
+    void loadAllResources();
+    void createScene1();
+    void createScene2();
+    void createScene3();
+    void createScene4();
 };
 
-
-
-#endif //ZPGPROJ_SCENEMANAGER_H
+#endif

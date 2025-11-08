@@ -5,7 +5,7 @@
 #include "DrawableObject.h"
 #include "Light.h"
 #include "ShaderProgram.h"
-#include "SkyBox.h"
+#include "Skybox.h"
 
 class Scene {
 public:

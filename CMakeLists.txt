@@ -110,6 +110,12 @@ add_executable(zpgproj
         plain_textured.h
         Skybox.cpp
         Skybox.h
+        ObjectFactory.cpp
+        ObjectFactory.h
+        Firefly.cpp
+        Firefly.h
+        ResourceManager.cpp
+        ResourceManager.h
 )
 
 
