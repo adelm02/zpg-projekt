@@ -32,16 +32,15 @@ void SceneManager::initializeScenes() {
 
     loadAllResources();
 
-    //createScene1();
-    //createScene2();
+    createScene1();
+    createScene2();
     createScene3();
-    //createScene4();
+    createScene4();
 }
 
 void SceneManager::loadAllResources() {
-    std::cout << "\n=== Loading Resources ===" << std::endl;
 
-    // SHADERY
+    // Shaders
     resourceManager.loadShader("vertex", GL_VERTEX_SHADER, "../shaders/vertex.vert");
     resourceManager.loadShader("fragment_lambert", GL_FRAGMENT_SHADER, "../shaders/lambert.frag");
     resourceManager.loadShader("fragment_phong", GL_FRAGMENT_SHADER, "../shaders/phong.frag");
@@ -51,7 +50,7 @@ void SceneManager::loadAllResources() {
     resourceManager.loadShader("vertex_skybox", GL_VERTEX_SHADER, "../shaders/skybox.vert");
     resourceManager.loadShader("fragment_skybox", GL_FRAGMENT_SHADER, "../shaders/skybox.frag");
 
-    // SHADER PROGRAMY
+    // ShaderPrograms
     resourceManager.loadShaderProgram("lambert", "vertex", "fragment_lambert");
     resourceManager.loadShaderProgram("phong", "vertex", "fragment_phong");
     resourceManager.loadShaderProgram("phong_light", "vertex", "fragment_phong_light");
@@ -59,7 +58,7 @@ void SceneManager::loadAllResources() {
     resourceManager.loadShaderProgram("constant", "vertex", "fragment_constant");
     resourceManager.loadShaderProgram("skybox", "vertex_skybox", "fragment_skybox");
 
-    // MODELY
+    // Modells
     resourceManager.loadModel("tree", tree, sizeof(tree)/sizeof(float), 6);
     resourceManager.loadModel("bush", bushes, sizeof(bushes)/sizeof(float), 6);
     resourceManager.loadModel("sphere", sphere, sizeof(sphere)/sizeof(float), 6);
@@ -71,24 +70,80 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModelOBJ("fiona", "assets/shrek/fiona.obj");
     resourceManager.loadModelOBJ("toilet", "assets/shrek/toiled.obj");
 
-    // TEXTURY
+    // Textures
     resourceManager.loadTexture("grass", "assets/grass.jpg");
     resourceManager.loadTexture("shrek", "assets/shrek/shrek.png");
     resourceManager.loadTexture("fiona", "assets/shrek/fiona.png");
     resourceManager.loadTexture("toilet", "assets/shrek/toiled.jpg");
 
-    std::cout << "=== Resources Loaded ===" << std::endl;
 }
 
+void SceneManager::createScene1() {
+    Scene* scene1 = new Scene();
+    scene1->registerLightingShader(resourceManager.getShaderProgram("blinn"));
 
+    // Directional light
+    scene1->addLight(Light(
+        0, // directional
+        glm::vec3(-0.3f, -1.0f, -0.2f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f)
+    ));
+
+    // Flashlight
+    scene1->addLight(Light(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::radians(25.0f),
+        glm::vec3(1.0f, 0.09f, 0.032f)
+    ));
+
+    auto formula = ObjectFactory::createCharacter(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        0.0f,
+        0.5f,
+        *resourceManager.getModel("formula"),
+        *resourceManager.getShaderProgram("blinn")
+    );
+
+    scene1->addObject(formula.object);
+    drawableObjects.push_back(formula.object);
+    for (auto* s : formula.scales) scales.push_back(s);
+    for (auto* r : formula.rotations) rotations.push_back(r);
+    for (auto* t : formula.transforms) tranforms.push_back(t);
+    transformations.push_back(formula.transformation);
+
+    addScene(scene1);
+    ownedScenes.push_back(scene1);
+}
+
+void SceneManager::createScene2() {
+    Scene* scene2 = new Scene();
+
+    std::vector<std::string> skyboxFaces = {
+        "assets/sky/cubemap/posx.jpg",
+        "assets/sky/cubemap/negx.jpg",
+        "assets/sky/cubemap/posy.jpg",
+        "assets/sky/cubemap/negy.jpg",
+        "assets/sky/cubemap/posz.jpg",
+        "assets/sky/cubemap/negz.jpg"
+    };
+
+    SkyBox* skybox = new SkyBox(skyboxFaces, resourceManager.getShaderProgram("skybox"));
+    scene2->setSkyBox(skybox);
+
+    addScene(scene2);
+    ownedScenes.push_back(scene2);
+}
 
 void SceneManager::createScene3() {
-    std::cout << "\n=== Creating Scene 3 (Forest) ===" << std::endl;
+
 
     Scene* scene3 = new Scene();
     scene3->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
-
+    // Fireflies
     for (int i = 0; i < 8; ++i) {
         float rx = (std::rand() / (float)RAND_MAX) * 80.0f;
         float rz = (std::rand() / (float)RAND_MAX) * 48.0f;
@@ -154,7 +209,6 @@ void SceneManager::createScene3() {
         transformations.push_back(bush.transformation);
     }
 
-
     auto ground = ObjectFactory::createGroundPlane(
         glm::vec3(45.0f, 0.0f, 20.0f),
         glm::vec3(50.0f, 1.0f, 30.0f),
@@ -163,8 +217,6 @@ void SceneManager::createScene3() {
     );
     ground.object->setTexture(resourceManager.getTexture("grass"));
     scene3->addObject(ground.object);
-
-
 
     drawableObjects.push_back(ground.object);
     for (auto* s : ground.scales) scales.push_back(s);
@@ -224,6 +276,66 @@ void SceneManager::createScene3() {
 
     addScene(scene3);
     ownedScenes.push_back(scene3);
+}
+
+void SceneManager::createScene4() {
+
+    Scene* scene4 = new Scene();
+    scene4->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
+
+    // point light(sun)
+    scene4->addLight(Light(1, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.95f, 0.85f),glm::vec3(1.0f, 0.027f, 0.0028f)));
+    auto sun = ObjectFactory::createCharacter(
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        0.0f,
+        1.5f,
+        *resourceManager.getModel("sphere"),
+        *resourceManager.getShaderProgram("constant")
+    );
+
+    sun.object->color = glm::vec3(1.0f, 0.8f, 0.0f);
+    scene4->addObject(sun.object);
+
+    drawableObjects.push_back(sun.object);
+    for (auto* s : sun.scales) scales.push_back(s);
+    for (auto* r : sun.rotations) rotations.push_back(r);
+    for (auto* t : sun.transforms) tranforms.push_back(t);
+    transformations.push_back(sun.transformation);
+
+    // global moveEarth trans
+    Scale* earthScale = new Scale(0.6f, 0.6f, 0.6f);
+    tEarth.addTrans(earthScale);
+    tEarth.addTrans(&moveEarth);
+
+    DrawableObject* earthObject = new DrawableObject(
+        *resourceManager.getModel("sphere"),
+        *resourceManager.getShaderProgram("phong_light"),
+        tEarth,
+        glm::vec3(0.0f, 0.3f, 0.8f) // blue color
+    );
+    scene4->addObject(earthObject);
+
+    scales.push_back(earthScale);
+    drawableObjects.push_back(earthObject);
+
+    // moveMoon global
+    Scale* moonScale = new Scale(0.25f, 0.25f, 0.25f);
+    tMoon.addTrans(moonScale);
+    tMoon.addTrans(&moveMoon);
+
+    DrawableObject* moonObject = new DrawableObject(
+        *resourceManager.getModel("sphere"),
+        *resourceManager.getShaderProgram("phong_light"),
+        tMoon,
+        glm::vec3(0.7f, 0.7f, 0.7f) // gray color
+    );
+    scene4->addObject(moonObject);
+
+    scales.push_back(moonScale);
+    drawableObjects.push_back(moonObject);
+
+    addScene(scene4);
+    ownedScenes.push_back(scene4);
 }
 
 void SceneManager::addScene(Scene* scene) {

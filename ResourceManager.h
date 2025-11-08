@@ -26,10 +26,7 @@ public:
 
     // loading shaders
     void loadShader(const std::string& name, GLenum type, const std::string& path);
-    void loadShaderProgram(const std::string& name, 
-                          const std::string& vertName, 
-                          const std::string& fragName);
-
+    void loadShaderProgram(const std::string& name, const std::string& vertName, const std::string& fragName);
 
     void loadTexture(const std::string& name, const std::string& path);
 
