@@ -24,16 +24,20 @@ uniform Material material;
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
 uniform vec3 viewPos;
 uniform vec3 objectColor;
 
+uniform sampler2D diffuseTexture;
+uniform bool useTexture;
+
 vec3 applyPoint(Light l, vec3 N, vec3 V) {
     vec3 L = normalize(l.position - FragPos);
     float d = length(l.position - FragPos);
-    float f = 1.0 / max((l.atten.x + l.atten.y * d + l.atten.z * d * d), 0.001); //light is getting lower with distance
+    float f = 1.0 / max((l.atten.x + l.atten.y * d + l.atten.z * d * d), 0.001);
 
     float diff = max(dot(N, L), 0.0);
     vec3 R = reflect(-L, N);
@@ -86,7 +90,10 @@ void main() {
     vec3 N = normalize(Normal);
     vec3 V = normalize(viewPos - FragPos);
 
-    vec3 result = vec3(0.0);
+    vec3 globalAmbient = vec3(0.07, 0.07, 0.07);
+    vec3 result = globalAmbient;
+
+
     for (int i = 0; i < nol; ++i) {
         if (lights[i].type == 1)
         result += applyPoint(lights[i], N, V);
@@ -96,5 +103,13 @@ void main() {
         result += applyDirectional(lights[i], N, V);
     }
 
-    FragColor = vec4(result * objectColor, 1.0);
+
+    vec3 baseColor;
+    if (useTexture) {
+        baseColor = texture(diffuseTexture, TexCoord).rgb;
+    } else {
+        baseColor = objectColor;
+    }
+
+    FragColor = vec4(result * baseColor, 1.0);
 }

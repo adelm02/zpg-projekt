@@ -20,7 +20,10 @@
 #include "suzi_smooth.h"
 #include "triangle.h"
 #include "plain.h"
+#include "plain_textured.h"
 #include <glm/glm.hpp>
+
+#include "Skybox.h"
 
 extern Tranform moveEarth;
 extern Tranform moveMoon;
@@ -101,6 +104,12 @@ void SceneManager::initializeScenes() {
     Shader* fragment_phong_light = new Shader();
     fragment_phong_light->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/fragment_phong_light.frag");
 
+    Shader* vertexSkybox = new Shader();
+    vertexSkybox->createShaderFromFile(GL_VERTEX_SHADER, "../shaders/skybox.vert");
+
+    Shader* fragmentSkybox = new Shader();
+    fragmentSkybox->createShaderFromFile(GL_FRAGMENT_SHADER, "../shaders/skybox.frag");
+
 
     ShaderProgram* programLambert = new ShaderProgram();
     programLambert->addShader(*vertex);
@@ -127,6 +136,11 @@ void SceneManager::initializeScenes() {
     programConstant->addShader(*fragC);
     programConstant->link();
 
+    ShaderProgram* programSkybox = new ShaderProgram();
+    programSkybox->addShader(*vertexSkybox);
+    programSkybox->addShader(*fragmentSkybox);
+    programSkybox->link();
+
     Modell* strom = new Modell();
     strom->loadData(tree, sizeof(tree)/sizeof(float), 6);
     Modell* bush = new Modell();
@@ -135,17 +149,62 @@ void SceneManager::initializeScenes() {
     koule->loadData(sphere, sizeof(sphere)/sizeof(float), 6);
     Modell* tria = new Modell();
     tria->loadData(triangle, sizeof(triangle)/sizeof(float), 6);
-    Modell* pl = new Modell();
-    pl->loadData(plain, sizeof(plain)/sizeof(float), 6);
+    //Modell* pl = new Modell();
+    //pl->loadData(plain, sizeof(plain)/sizeof(float), 6);
     Modell* formula = new Modell();
     formula->loadOBJ("assets/formula1.obj");
+    //grass texture
+    Modell* pl = new Modell();
+    pl->loadDataWithTexCoords(plain_textured, sizeof(plain_textured)/sizeof(float), 8);
+
+
+    Modell* shrek = new Modell();
+    shrek->loadOBJ("assets/shrek/shrek.obj");
+
+    Modell* fiona = new Modell();
+    fiona->loadOBJ("assets/shrek/fiona.obj");
+
+    Modell* toilet = new Modell();
+    toilet->loadOBJ("assets/shrek/toiled.obj");
+
 
     Texture* grassTexture = new Texture();
-    if (!grassTexture->loadFromFile("assets/grass.png")) {
-        std::cerr << "Chyba: Nelze nacist texturu" << std::endl;
+    if (!grassTexture->loadFromFile("assets/grass.jpg")) {
+        std::cerr << "Error: grass texture" << std::endl;
         delete grassTexture;
         grassTexture = nullptr;
     }
+
+    Texture* shrekTexture = new Texture();
+    if (!shrekTexture->loadFromFile("assets/shrek/shrek.png")) {
+        std::cerr << "Error: Shrek texture" << std::endl;
+        delete shrekTexture;
+        shrekTexture = nullptr;
+    }
+
+    Texture* fionaTexture = new Texture();
+    if (!fionaTexture->loadFromFile("assets/shrek/fiona.png")) {
+        std::cerr << "Error: Fiona texture" << std::endl;
+        delete fionaTexture;
+        fionaTexture = nullptr;
+    }
+
+    Texture* toiletTexture = new Texture();
+    if (!toiletTexture->loadFromFile("assets/shrek/toiled.jpg")) {
+        std::cerr << "Error: Toilet texture" << std::endl;
+        delete toiletTexture;
+        toiletTexture = nullptr;
+    }
+
+    std::vector<std::string> skyboxFaces {
+        "assets/sky/posx.jpg",  // right
+        "assets/sky/negx.jpg",  // left
+        "assets/sky/posy.jpg",  // top
+        "assets/sky/negy.jpg",  // bottom
+        "assets/sky/posz.jpg",  // front
+        "assets/sky/negz.jpg"   // back
+    };
+
 
 
     Scene* scene1 = new Scene();
@@ -181,17 +240,16 @@ void SceneManager::initializeScenes() {
 
     Light L(
         glm::vec3(rx, ry, rz),
-        glm::vec3(1.00f, 1.0f, 1.0f),
+        glm::vec3(1.5f, 1.5f, 1.5f),
         glm::vec3(1.0f, 0.22f, 0.20f)
     );
 
         scene3->addLight(L);
     }
-    
 
     scene3->addLight( Light(glm::vec3(0.0f, 0.0f, 0.0f), //pos
                             glm::vec3(0.0f, 0.0f, -1.0f), //dir
-                            glm::vec3(1.0f, 1.0f, 1.0f),
+                            glm::vec3(1.f, 1.f, 1.f),
                             glm::radians(25.0f),
                             glm::vec3(1.0f, 0.09f, 0.032f))); //atten
 
@@ -225,17 +283,19 @@ void SceneManager::initializeScenes() {
         float x1 = x + 5.0f;
         float z1 = z + 5.0f;
 
-        // Tree
+        // Tree transformace - VELMI malé zmenšení
         Tranform* move = new Tranform(x, 0.0f, z);
         Transformation* t = new Transformation();
         t->addTrans(move);
 
-        DrawableObject* stromek = new DrawableObject(*strom, *programPhongLight, *t, glm::vec3(0.20f, 0.65f, 0.40f));
-        scene3->addObject(stromek);
+
+        DrawableObject* treee = new DrawableObject(*strom, *programPhongLight, *t, glm::vec3(0.20f, 0.65f, 0.40f));
+        treee->setMaterial(strom->getMaterial());
+        scene3->addObject(treee);
 
         tranforms.push_back(move);
         transformations.push_back(t);
-        drawableObjects.push_back(stromek);
+        drawableObjects.push_back(treee);
 
         // Bush
         Scale* s = new Scale(3.f, 3.f, 3.f);
@@ -275,6 +335,32 @@ void SceneManager::initializeScenes() {
     transformations.push_back(minii);
 
 
+    //shrek trans
+    Scale* shrekScale = new Scale(2.0f, 2.0f, 2.0f);
+    Rotate* shrekRot = new Rotate(90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+    Tranform* shrekPos = new Tranform(42.0f, 0.0f, 22.0f);
+    Transformation* shrekTransform = new Transformation();
+    shrekTransform->addTrans(shrekScale);
+    shrekTransform->addTrans(shrekRot);
+    shrekTransform->addTrans(shrekPos);
+
+    // Fiona trans
+    Scale* fionaScale = new Scale(2.0f, 2.0f, 2.0f);
+    Rotate* fionaRot = new Rotate(-90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+    Tranform* fionaPos = new Tranform(48.0f, 0.0f, 22.0f);
+    Transformation* fionaTransform = new Transformation();
+    fionaTransform->addTrans(fionaScale);
+    fionaTransform->addTrans(fionaRot);
+    fionaTransform->addTrans(fionaPos);
+
+    //toilet trans
+    Scale* toiletScale = new Scale(1.5f, 1.5f, 1.5f);
+    Tranform* toiletPos = new Tranform(45.0f, 0.0f, 17.0f);
+    Transformation* toiletTransform = new Transformation();
+    toiletTransform->addTrans(toiletScale);
+    toiletTransform->addTrans(toiletPos);
+
+
     Tranform* stred = new Tranform(0.f, 0.f, 0.f);
     Transformation* middle = new Transformation();
     middle->addTrans(stred);
@@ -292,12 +378,32 @@ void SceneManager::initializeScenes() {
     formula1->setMaterial(formula->getMaterial());
     scene1->addObject(formula1);
 
+
+
+    DrawableObject* shrekk = new DrawableObject(*shrek, *programConstant, *shrekTransform);
+    shrekk->setMaterial(shrek->getMaterial());
+    shrekk->setTexture(shrekTexture);
+    scene3->addObject(shrekk);
+
+    DrawableObject* fionaa = new DrawableObject(*fiona, *programConstant, *fionaTransform);
+    fionaa->setMaterial(fiona->getMaterial());
+    fionaa->setTexture(fionaTexture);
+    scene3->addObject(fionaa);
+
+    DrawableObject* toilett = new DrawableObject(*toilet, *programPhongLight, *toiletTransform);
+    toilett->setMaterial(toilet->getMaterial());
+    toilett->setTexture(toiletTexture);
+    scene3->addObject(toilett);
+
     DrawableObject* earthObject = new DrawableObject(*koule, *programPhongLight, tEarth);
     DrawableObject* moonObject = new DrawableObject(*koule, *programPhongLight, tMoon);
     DrawableObject* idk = new DrawableObject(*koule, *programPhong, tEarth);
     scene4->addObject(earthObject);
     scene4->addObject(moonObject);
     scene4->addObject(idk);
+
+    SkyBox* skybox = new SkyBox(skyboxFaces, programSkybox);
+    scene1->setSkyBox(skybox);
 
     scales.push_back(earthScale);
     scales.push_back(moonScale);
@@ -316,6 +422,20 @@ void SceneManager::initializeScenes() {
     scene1->addObject(triangleObj);
     scene1->addObject(formula1);
 
+    scales.push_back(shrekScale);
+    scales.push_back(fionaScale);
+    scales.push_back(toiletScale);
+
+    tranforms.push_back(shrekPos);
+    tranforms.push_back(fionaPos);
+    tranforms.push_back(toiletPos);
+
+
+    transformations.push_back(shrekTransform);
+    transformations.push_back(fionaTransform);
+    transformations.push_back(toiletTransform);
+
+
     tranforms.push_back(stred);
     transformations.push_back(middle);
     scales.push_back(zem2);
@@ -323,6 +443,11 @@ void SceneManager::initializeScenes() {
     transformations.push_back(zemm2);
     drawableObjects.push_back(triangleObj);
     drawableObjects.push_back(formula1);
+    drawableObjects.push_back(shrekk);
+    drawableObjects.push_back(fionaa);
+    drawableObjects.push_back(toilett);
+
+
 
     // Store all the objects before adding scenes
     shaders.push_back(vertex);
@@ -331,12 +456,16 @@ void SceneManager::initializeScenes() {
     shaders.push_back(fragment_blinn);
     shaders.push_back(fragC);
     shaders.push_back(fragment_phong_light);
+    shaders.push_back(vertexSkybox);
+    shaders.push_back(fragmentSkybox);
+
 
     shaderPrograms.push_back(programLambert);
     shaderPrograms.push_back(programPhong);
     shaderPrograms.push_back(programPhongLight);
     shaderPrograms.push_back(programBlinn);
     shaderPrograms.push_back(programConstant);
+    shaderPrograms.push_back(programSkybox);
 
     models.push_back(strom);
     models.push_back(bush);
@@ -344,9 +473,15 @@ void SceneManager::initializeScenes() {
     models.push_back(tria);
     models.push_back(pl);
     models.push_back(formula);
+    models.push_back(shrek);
+    models.push_back(fiona);
+    models.push_back(toilet);
 
 
     myTextures.push_back(grassTexture);
+    myTextures.push_back(shrekTexture);
+    myTextures.push_back(fionaTexture);
+    myTextures.push_back(toiletTexture);
 
 
     addScene(scene1);
