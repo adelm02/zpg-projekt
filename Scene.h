@@ -13,9 +13,9 @@ public:
     void drawAll();
     void update(float dt);
 
-    void addLight(const Light& l) { lights.push_back(l); }
-    void clearLights() { lights.clear(); }
-    void registerLightingShader(ShaderProgram* sp) { lightingShaders.push_back(sp); }
+    void addLight(const Light& l);
+    void clearLights();
+    void registerLightingShader(ShaderProgram* sp);
     void updateLight(int index, const Light& l);
 
     void setSkyBox(SkyBox* sb) { skybox = sb; }

@@ -31,6 +31,12 @@ void Scene::applyLightsTo(ShaderProgram* sp) {
 }
 
 void Scene::drawAll() {
+    if (skybox) {
+        skybox->draw(
+            Camera::getInstance()->getCamera(),
+            Camera::getInstance()->getProjection()
+        );
+    }
     for (auto* sp : lightingShaders) {
         if (!sp) continue;
         sp->useShaderProgram();
@@ -47,6 +53,18 @@ void Scene::update(float dt) {
     for (auto* obj : objects) {
         if (obj) obj->update(dt);
     }
+}
+
+void Scene::addLight(const Light &l) {
+    lights.push_back(l);
+}
+
+void Scene::clearLights() {
+    lights.clear();
+}
+
+void Scene::registerLightingShader(ShaderProgram *sp) {
+    lightingShaders.push_back(sp);
 }
 
 void Scene::updateLight(int index, const Light &l) {

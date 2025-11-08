@@ -1,12 +1,13 @@
 #include "SkyBox.h"
 #include "ShaderProgram.h"
+#include "Camera.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
+
 #include "stb_image.h"
 
-// Data krychle (z ukázkového kódu učitele)
+
 const float skycube[108] = {
     -1.0f,-1.0f,-1.0f,
     -1.0f,-1.0f, 1.0f,
@@ -78,7 +79,7 @@ GLuint SkyBox::loadCubemap(const std::vector<std::string>& faces) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-    stbi_set_flip_vertically_on_load(false); // DŮLEŽITÉ pro cubemapy!
+    stbi_set_flip_vertically_on_load(false);
 
     int width, height, channels;
 
@@ -89,6 +90,7 @@ GLuint SkyBox::loadCubemap(const std::vector<std::string>& faces) {
                          0, GL_RGBA, width, height, 0,
                          GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
+            std::cout << "Loaded: " << faces[i] << std::endl;
         } else {
             std::cerr << "ERROR: Cubemap texture failed to load: " << faces[i] << std::endl;
         }
@@ -104,20 +106,19 @@ GLuint SkyBox::loadCubemap(const std::vector<std::string>& faces) {
 }
 
 void SkyBox::draw(const glm::mat4& view, const glm::mat4& projection) {
-    glDepthFunc(GL_LEQUAL); // Skybox se vykreslí až za všechno ostatní
+    glDepthFunc(GL_LEQUAL);
 
-    shaderProgram->use();
+    shaderProgram->useShaderProgram();
 
-    // Odstraň translaci z view matice (skybox se nehýbe s kamerou)
     glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view));
 
-    shaderProgram->setUniformMatrix4fv("viewMatrix", viewNoTranslation);
-    shaderProgram->setUniformMatrix4fv("projectionMatrix", projection);
+    shaderProgram->SetUniform("viewMatrix", viewNoTranslation);
+    shaderProgram->SetUniform("projectionMatrix", projection);
 
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-    shaderProgram->setUniform1i("skybox", 0);
+    shaderProgram->SetUniform("skybox", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);

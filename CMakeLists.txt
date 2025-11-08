@@ -108,8 +108,6 @@ add_executable(zpgproj
         Texture.h
         stb_image.h
         plain_textured.h
-        shaders/Skybox.cpp
-        Skybox.h
         Skybox.cpp
         Skybox.h
 )

@@ -197,15 +197,13 @@ void SceneManager::initializeScenes() {
     }
 
     std::vector<std::string> skyboxFaces {
-        "assets/sky/posx.jpg",  // right
-        "assets/sky/negx.jpg",  // left
-        "assets/sky/posy.jpg",  // top
-        "assets/sky/negy.jpg",  // bottom
-        "assets/sky/posz.jpg",  // front
-        "assets/sky/negz.jpg"   // back
+        "assets/sky/cubemap/posx.jpg",  // right
+        "assets/sky/cubemap/negx.jpg",  // left
+        "assets/sky/cubemap/posy.jpg",  // top
+        "assets/sky/cubemap/negy.jpg",  // bottom
+        "assets/sky/cubemap/posz.jpg",  // front
+        "assets/sky/cubemap/negz.jpg"   // back
     };
-
-
 
     Scene* scene1 = new Scene();
     Scene* scene2 = new Scene();
@@ -283,7 +281,7 @@ void SceneManager::initializeScenes() {
         float x1 = x + 5.0f;
         float z1 = z + 5.0f;
 
-        // Tree transformace - VELMI malé zmenšení
+
         Tranform* move = new Tranform(x, 0.0f, z);
         Transformation* t = new Transformation();
         t->addTrans(move);
@@ -403,7 +401,7 @@ void SceneManager::initializeScenes() {
     scene4->addObject(idk);
 
     SkyBox* skybox = new SkyBox(skyboxFaces, programSkybox);
-    scene1->setSkyBox(skybox);
+    scene2->setSkyBox(skybox);
 
     scales.push_back(earthScale);
     scales.push_back(moonScale);

@@ -1,4 +1,4 @@
-#version 450
+#version 330 core
 
 layout(location = 0) in vec3 vp;
 
@@ -10,5 +10,5 @@ out vec3 fragmentLocalPosition;
 void main() {
     fragmentLocalPosition = vp;
     vec4 pos = projectionMatrix * viewMatrix * vec4(vp, 1.0);
-    gl_Position = pos.xyww; // Trik pro nekonečnou vzdálenost
+    gl_Position = pos.xyww;
 }
