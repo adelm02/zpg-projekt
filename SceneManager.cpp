@@ -69,12 +69,14 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModelOBJ("shrek", "assets/shrek/shrek.obj");
     resourceManager.loadModelOBJ("fiona", "assets/shrek/fiona.obj");
     resourceManager.loadModelOBJ("toilet", "assets/shrek/toiled.obj");
+    resourceManager.loadModelOBJ("pinapl", "assets/pineapple2/pineapple2.obj");
 
     // Textures
     resourceManager.loadTexture("grass", "assets/grass.jpg");
     resourceManager.loadTexture("shrek", "assets/shrek/shrek.png");
     resourceManager.loadTexture("fiona", "assets/shrek/fiona.png");
     resourceManager.loadTexture("toilet", "assets/shrek/toiled.jpg");
+    resourceManager.loadTexture("pinapl", "assets/pineapple2/pineapple2.jpg");
 
 }
 
@@ -99,20 +101,23 @@ void SceneManager::createScene1() {
         glm::vec3(1.0f, 0.09f, 0.032f)
     ));
 
-    auto formula = ObjectFactory::createCharacter(
+    auto pinapl = ObjectFactory::createCharacter(
         glm::vec3(0.0f, 0.0f, 0.0f),
         0.0f,
         0.5f,
-        *resourceManager.getModel("formula"),
+        *resourceManager.getModel("pinapl"),
         *resourceManager.getShaderProgram("blinn")
     );
 
-    scene1->addObject(formula.object);
-    drawableObjects.push_back(formula.object);
-    for (auto* s : formula.scales) scales.push_back(s);
-    for (auto* r : formula.rotations) rotations.push_back(r);
-    for (auto* t : formula.transforms) tranforms.push_back(t);
-    transformations.push_back(formula.transformation);
+    pinapl.object->setTexture(resourceManager.getTexture("pinapl"));
+
+
+    scene1->addObject(pinapl.object);
+    drawableObjects.push_back(pinapl.object);
+    for (auto* s : pinapl.scales) scales.push_back(s);
+    for (auto* r : pinapl.rotations) rotations.push_back(r);
+    for (auto* t : pinapl.transforms) tranforms.push_back(t);
+    transformations.push_back(pinapl.transformation);
 
     addScene(scene1);
     ownedScenes.push_back(scene1);

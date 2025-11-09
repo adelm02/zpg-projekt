@@ -1,0 +1,5 @@
+PG umožňuje nekonečno, použít jako běžný bod pomocí souřadnic (x,y,z,w), pak můžeme jednotně zpracovat projekci perpektivní a rovnobeznou pomocí stejných 4x4 matic.
+
+w = 0 - nekonečno
+něco / w - udělat perspektivu (vzdálenější objekty jsou menší)
+násobení matic - vše počítáno stejně (translace, rotaace, projekce)
