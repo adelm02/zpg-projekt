@@ -15,7 +15,10 @@ extern Tranform moveMoon;
 extern Transformation tEarth;
 extern Transformation tMoon;
 
-SceneManager::SceneManager() {}
+SceneManager::SceneManager() {
+    objectManager = new ObjectManager();
+    std::cout << "SceneManager: ObjectManager created" << std::endl;
+}
 
 SceneManager::~SceneManager() {
     for (auto* obj : drawableObjects) delete obj;
@@ -29,14 +32,73 @@ SceneManager::~SceneManager() {
 
 void SceneManager::initializeScenes() {
     std::srand(42);
-
     loadAllResources();
 
     createScene1();
     createScene2();
     createScene3();
     createScene4();
+
+    if (objectManager && !scenes.empty()) {
+        objectManager->setScene(scenes[0]);
+
+        // 🆕 PŘIDAT: Zaregistrovat objekty do ObjectManager
+        registerSceneObjectsToManager();
+    }
 }
+
+void SceneManager::registerSceneObjectsToManager() {
+    if (!objectManager) {
+        std::cout << "Error: ObjectManager not initialized!" << std::endl;
+        return;
+    }
+
+    Scene* currentScene = getCurrentScene();
+    if (!currentScene) {
+        std::cout << "Error: No current scene!" << std::endl;
+        return;
+    }
+
+    // Zrušit předchozí výběr
+    objectManager->deselect();
+
+    // Vyčistit ObjectManager (objekty z předchozí scény)
+    objectManager->clear();
+
+    // Nastavit aktuální scénu
+    objectManager->setScene(currentScene);
+
+    // Získat všechny objekty ze scény
+    const auto& sceneObjects = currentScene->getObjects();
+
+    std::cout << "Registering " << sceneObjects.size() << " objects to ObjectManager" << std::endl;
+
+    // Projít všechny objekty a vytvořit pro ně ObjectData
+    for (size_t i = 0; i < sceneObjects.size(); i++) {
+        DrawableObject* obj = sceneObjects[i];
+        if (!obj) continue;
+
+        // Vytvořit ObjectData
+        ObjectData data;
+        data.object = obj;
+        data.originalColor = obj->color;
+        data.stencilID = i + 1;
+
+        // DŮLEŽITÉ: Nebudeme spravovat transformace!
+        // Objekty mají své vlastní transformace ze SceneManager
+        data.transformation = nullptr;
+        data.scale = nullptr;
+        data.transform = nullptr;
+        data.rotation = nullptr;
+
+        // Přidat do ObjectManager (ale ne do scény - už tam je!)
+        objectManager->addObjectWithoutScene(data);
+    }
+
+    std::cout << "Registration complete. ObjectManager has "
+              << objectManager->getObjectCount() << " objects" << std::endl;
+}
+
 
 void SceneManager::loadAllResources() {
 
@@ -348,8 +410,16 @@ void SceneManager::addScene(Scene* scene) {
 }
 
 void SceneManager::switchScene(int index) {
-    if (index >= 0 && index < scenes.size())
+    if (index >= 0 && index < scenes.size()) {
         currentSceneIndex = index;
+
+        if (objectManager) {
+            objectManager->setScene(scenes[currentSceneIndex]);
+
+            // 🆕 PŘIDAT: Zaregistrovat objekty nové scény
+            registerSceneObjectsToManager();
+        }
+    }
 }
 
 void SceneManager::drawCurrentScene() {
@@ -378,3 +448,23 @@ Scene* SceneManager::getCurrentScene() {
     }
     return nullptr;
 }
+
+void SceneManager::setSelectedObject(int index) {
+    if (index >= 0 && index < (int)drawableObjects.size()) {
+        selectedObjectIndex = index;
+        DrawableObject* obj = drawableObjects[index];
+        std::cout << "Object selected: index=" << index << ", stencilID=" << obj->getStencilID() << std::endl;
+    } else {
+        selectedObjectIndex = -1;
+        std::cout << "No object selected (invalid index: " << index << ")" << std::endl;
+    }
+}
+
+DrawableObject* SceneManager::getObjectByIndex(int index) {
+    if (index >= 0 && index < (int)drawableObjects.size()) {
+        return drawableObjects[index];
+    }
+    return nullptr;
+}
+
+

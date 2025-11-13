@@ -2,18 +2,22 @@
 #define ZPGPROJ_SCENEMANAGER_H
 
 #include <vector>
+#include <GLFW/glfw3.h>
+
 #include "Scene.h"
 #include "ResourceManager.h"
 #include "Firefly.h"
 #include "Rotate.h"
+#include "ObjectManager.h"
 
 class SceneManager {
 private:
     std::vector<Scene*> scenes;
     int currentSceneIndex = 0;
-    
+    int selectedObjectIndex = -1; // Index vybraného objektu (-1 = žádný)
+
     ResourceManager resourceManager;
-    
+    ObjectManager* objectManager;
 
     std::vector<DrawableObject*> drawableObjects;
     std::vector<Transformation*> transformations;
@@ -33,8 +37,16 @@ public:
     void update(float dt);
     int getCurrentSceneIndex();
     Scene* getCurrentScene();
-    
+
     void initializeScenes();
+
+    void setSelectedObject(int index);
+    int getSelectedObject() const { return selectedObjectIndex; }
+    DrawableObject* getObjectByIndex(int index);
+    ObjectManager* getObjectManager() { return objectManager; }
+    void registerSceneObjectsToManager();
+
+
 
 private:
     void loadAllResources();

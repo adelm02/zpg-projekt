@@ -7,7 +7,8 @@
 class Texture {
 private:
     GLuint textureID;
-    int width, height, channels;
+    int width, height;
+    int channels; //color
 
 public:
     Texture();

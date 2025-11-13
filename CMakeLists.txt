@@ -116,6 +116,8 @@ add_executable(zpgproj
         Firefly.h
         ResourceManager.cpp
         ResourceManager.h
+        ObjectManager.cpp
+        ObjectManager.h
 )
 
 

@@ -1,8 +1,9 @@
 // Scene.cpp
+// Upraveno pro podporu stencil bufferu
 #include "Scene.h"
 #include "Camera.h"
 #include <algorithm>
-
+#include <algorithm>
 void Scene::addObject(DrawableObject* obj) {
     objects.push_back(obj);
 }
@@ -49,6 +50,53 @@ void Scene::drawAll() {
     }
 }
 
+void Scene::drawAllWithStencil() {
+    // Povolit stencil test
+    glEnable(GL_STENCIL_TEST);
+
+    // Vyčistit stencil buffer na 0
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
+    // Nakreslit skybox (bez stencil zápisu)
+    if (skybox) {
+        glStencilMask(0x00); // Zakázat zápis do stencil bufferu
+        skybox->draw(
+            Camera::getInstance()->getCamera(),
+            Camera::getInstance()->getProjection()
+        );
+    }
+
+    // Povolit zápis do stencil bufferu pro objekty
+    glStencilMask(0xFF);
+
+    // Nastavit uniformy pro všechny shadery
+    for (auto* sp : lightingShaders) {
+        if (!sp) continue;
+        sp->useShaderProgram();
+        setGlobalUniforms(sp);
+        applyLightsTo(sp);
+    }
+
+    // Vykreslit každý objekt s jeho stencil ID
+    int stencilIndex = 1; // Začínáme od 1, 0 je pro pozadí
+    for (auto* obj : objects) {
+        if (obj) {
+            obj->setStencilID(stencilIndex);
+            obj->drawWithStencil(stencilIndex);
+            stencilIndex++;
+
+            // Omezení na max 255 objektů (limit stencil bufferu)
+            if (stencilIndex > 255) {
+                stencilIndex = 1;
+            }
+        }
+    }
+
+    // Vypnout stencil test po vykreslení
+    glDisable(GL_STENCIL_TEST);
+}
+
 void Scene::update(float dt) {
     for (auto* obj : objects) {
         if (obj) obj->update(dt);
@@ -70,5 +118,12 @@ void Scene::registerLightingShader(ShaderProgram *sp) {
 void Scene::updateLight(int index, const Light &l) {
     if (index >= 0 && index < (int)lights.size()) {
         lights[index] = l;
+    }
+}
+
+void Scene::removeObject(DrawableObject* obj) {
+    auto it = std::find(objects.begin(), objects.end(), obj);
+    if (it != objects.end()) {
+        objects.erase(it);
     }
 }

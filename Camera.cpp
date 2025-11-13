@@ -43,7 +43,7 @@ glm::vec3 Camera::getDirection() {
 void Camera::inputs(GLFWwindow *window, int key, int action) {
     const float cameraSpeed = 0.5f;
     if (key==GLFW_KEY_W && (action==GLFW_PRESS || action==GLFW_REPEAT)) {
-        printf("Front : %f, %f , %f\n", CameraFront.x, CameraFront.y, CameraFront.z);
+        //printf("Front : %f, %f , %f\n", CameraFront.x, CameraFront.y, CameraFront.z);
         this->CameraPosition += cameraSpeed * this->CameraFront;
     }
     if (key==GLFW_KEY_S && (action==GLFW_PRESS || action==GLFW_REPEAT))
