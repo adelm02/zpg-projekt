@@ -51,26 +51,23 @@ void Scene::drawAll() {
 }
 
 void Scene::drawAllWithStencil() {
-    // Povolit stencil test
     glEnable(GL_STENCIL_TEST);
 
-    // Vyčistit stencil buffer na 0
+    // set buffer to 0
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
 
-    // Nakreslit skybox (bez stencil zápisu)
     if (skybox) {
-        glStencilMask(0x00); // Zakázat zápis do stencil bufferu
+        glStencilMask(0x00); // forbid writing skybox to stencil
         skybox->draw(
             Camera::getInstance()->getCamera(),
             Camera::getInstance()->getProjection()
         );
     }
 
-    // Povolit zápis do stencil bufferu pro objekty
     glStencilMask(0xFF);
 
-    // Nastavit uniformy pro všechny shadery
+
     for (auto* sp : lightingShaders) {
         if (!sp) continue;
         sp->useShaderProgram();
@@ -78,22 +75,20 @@ void Scene::drawAllWithStencil() {
         applyLightsTo(sp);
     }
 
-    // Vykreslit každý objekt s jeho stencil ID
-    int stencilIndex = 1; // Začínáme od 1, 0 je pro pozadí
+    // draw objects with stencil
+    int stencilIndex = 1; // start 1, backrounf 0
     for (auto* obj : objects) {
         if (obj) {
             obj->setStencilID(stencilIndex);
             obj->drawWithStencil(stencilIndex);
             stencilIndex++;
 
-            // Omezení na max 255 objektů (limit stencil bufferu)
             if (stencilIndex > 255) {
                 stencilIndex = 1;
             }
         }
     }
 
-    // Vypnout stencil test po vykreslení
     glDisable(GL_STENCIL_TEST);
 }
 

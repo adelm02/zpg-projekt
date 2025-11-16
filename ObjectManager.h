@@ -7,7 +7,8 @@
 #define ZPGPROJ_OBJECTMANAGER_H
 
 #include <vector>
-#include <glm/glm.hpp>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "DrawableObject.h"
 #include "Scene.h"
 #include "Transformation.h"
@@ -33,7 +34,7 @@ private:
     int selectedIndex;
     Scene* currentScene;
 
-    const glm::vec3 SELECTION_COLOR = glm::vec3(1.0f, 1.0f, 0.0f); // Žlutá
+    const glm::vec3 SELECTION_COLOR = glm::vec3(1.0f, 1.0f, 0.0f); // yellow
 
 public:
     ObjectManager();

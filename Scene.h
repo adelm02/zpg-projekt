@@ -12,7 +12,7 @@ public:
     void addObject(DrawableObject* obj);
     void removeObject(DrawableObject* obj);
     void drawAll();
-    void drawAllWithStencil(); // Nová metoda pro kreslení se stencil bufferem
+    void drawAllWithStencil();
     void update(float dt);
 
     void addLight(const Light& l);
@@ -22,7 +22,7 @@ public:
 
     void setSkyBox(SkyBox* sb) { skybox = sb; }
 
-    // Získání objektů pro picking
+    //object for poicking
     const std::vector<DrawableObject*>& getObjects() const { return objects; }
 
     SkyBox* skybox = nullptr;

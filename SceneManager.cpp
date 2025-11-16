@@ -41,8 +41,6 @@ void SceneManager::initializeScenes() {
 
     if (objectManager && !scenes.empty()) {
         objectManager->setScene(scenes[0]);
-
-        // 🆕 PŘIDAT: Zaregistrovat objekty do ObjectManager
         registerSceneObjectsToManager();
     }
 }
@@ -59,45 +57,145 @@ void SceneManager::registerSceneObjectsToManager() {
         return;
     }
 
-    // Zrušit předchozí výběr
     objectManager->deselect();
-
-    // Vyčistit ObjectManager (objekty z předchozí scény)
     objectManager->clear();
 
-    // Nastavit aktuální scénu
     objectManager->setScene(currentScene);
 
-    // Získat všechny objekty ze scény
+    //all object from scenee
     const auto& sceneObjects = currentScene->getObjects();
 
     std::cout << "Registering " << sceneObjects.size() << " objects to ObjectManager" << std::endl;
 
-    // Projít všechny objekty a vytvořit pro ně ObjectData
+    // create ObjectData for all objetcs
     for (size_t i = 0; i < sceneObjects.size(); i++) {
         DrawableObject* obj = sceneObjects[i];
         if (!obj) continue;
 
-        // Vytvořit ObjectData
         ObjectData data;
         data.object = obj;
         data.originalColor = obj->color;
         data.stencilID = i + 1;
 
-        // DŮLEŽITÉ: Nebudeme spravovat transformace!
-        // Objekty mají své vlastní transformace ze SceneManager
+        // trans from SceneManager
+        auto it = objectToTransform.find(obj);
+        if (it != objectToTransform.end()) {
+            data.transform = it->second;
+            std::cout << "Found transform for object " << i
+                      << " at (" << data.transform->x << ", "
+                      << data.transform->y << ", "
+                      << data.transform->z << ")" << std::endl;
+        } else {
+            data.transform = nullptr;
+            std::cout << "WARNING: No transform for object " << i << std::endl;
+        }
+
         data.transformation = nullptr;
         data.scale = nullptr;
-        data.transform = nullptr;
         data.rotation = nullptr;
 
-        // Přidat do ObjectManager (ale ne do scény - už tam je!)
         objectManager->addObjectWithoutScene(data);
     }
 
     std::cout << "Registration complete. ObjectManager has "
               << objectManager->getObjectCount() << " objects" << std::endl;
 }
+
+void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
+
+    Scene* scene = getCurrentScene();
+    if (!scene) {
+        std::cout << "No current scene for planting tree" << std::endl;
+        return;
+    }
+
+    // trees in scene 3
+    if (currentSceneIndex != 2) {
+        std::cout << "Tree planting allowed only in scene 3" << std::endl;
+        return;
+    }
+
+    // pos tree
+    glm::vec3 pos = glm::vec3(worldPos.x, 0.0f, worldPos.z);
+
+    auto tree = ObjectFactory::createTree(
+        pos,
+        *resourceManager.getModel("tree"),
+        *resourceManager.getShaderProgram("phong_light")
+    );
+
+    scene->addObject(tree.object);
+
+
+    drawableObjects.push_back(tree.object);
+    for (auto* t : tree.transforms) tranforms.push_back(t);
+    transformations.push_back(tree.transformation);
+    if (!tree.transforms.empty()) {
+        registerObjectTransform(tree.object, tree.transforms[0]);
+    }
+    // register objectManager, no adding to scene
+    if (objectManager) {
+        ObjectData data;
+        data.object = tree.object;
+        data.originalColor = tree.object->color;
+        data.stencilID = 0;
+
+        data.transformation = tree.transformation;
+        data.scale = tree.scales.empty() ? nullptr : tree.scales[0];
+        data.transform = tree.transforms.empty() ? nullptr : tree.transforms[0];  // ← TOTO!
+        data.rotation = tree.rotations.empty() ? nullptr : tree.rotations[0];
+
+        /*if (data.transform) {
+            std::cout << "Tree transform registered at: ("
+                      << data.transform->x << ", "
+                      << data.transform->y << ", "
+                      << data.transform->z << ")" << std::endl;
+        } else {
+            std::cout << "ERROR: tree.transforms is empty!" << std::endl;
+        }*/
+
+        objectManager->addObjectWithoutScene(data);
+        objectManager->updateStencilIDs();
+    }
+    std::cout << "Tree planted at: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+}
+
+void SceneManager::moveSelectedObject(const glm::vec3& offset) {
+    if (!objectManager || !objectManager->hasSelection()) {
+        return;
+    }
+
+    int selectedIndex = objectManager->getSelectedIndex();
+    const auto& objects = objectManager->getObjects();
+
+    if (selectedIndex < 0 || selectedIndex >= (int)objects.size()) {
+        return;
+    }
+
+    const ObjectData& objData = objects[selectedIndex];
+    Tranform* transform = objData.transform;
+
+    if (!transform) {
+        std::cout << "Object has no transform" << std::endl;
+        return;
+    }
+
+
+    transform->x += offset.x;
+    transform->z += offset.z;
+    // Y at 0
+
+    std::cout << "Object at: ("
+              << transform->x << ", "
+              << transform->y << ", "
+              << transform->z << ")" << std::endl;
+}
+
+
+void SceneManager::registerObjectTransform(DrawableObject* obj, Tranform* transform) {
+    objectToTransform[obj] = transform;
+}
+
 
 
 void SceneManager::loadAllResources() {
@@ -230,9 +328,10 @@ void SceneManager::createScene3() {
         scales.push_back(firefly->getScale());
         tranforms.push_back(firefly->getTransform());
         transformations.push_back(firefly->getTransformation());
+
     }
 
-    // FLASHLIGHT
+    // Flashlight
     scene3->addLight(Light(
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
@@ -256,6 +355,9 @@ void SceneManager::createScene3() {
         drawableObjects.push_back(tree.object);
         for (auto* t : tree.transforms) tranforms.push_back(t);
         transformations.push_back(tree.transformation);
+        if (!tree.transforms.empty()) {
+            registerObjectTransform(tree.object, tree.transforms[0]);
+        }
     }
 
 
@@ -416,7 +518,6 @@ void SceneManager::switchScene(int index) {
         if (objectManager) {
             objectManager->setScene(scenes[currentSceneIndex]);
 
-            // 🆕 PŘIDAT: Zaregistrovat objekty nové scény
             registerSceneObjectsToManager();
         }
     }

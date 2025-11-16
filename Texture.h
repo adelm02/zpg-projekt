@@ -5,11 +5,6 @@
 #include <string>
 
 class Texture {
-private:
-    GLuint textureID;
-    int width, height;
-    int channels; //color
-
 public:
     Texture();
     ~Texture();
@@ -27,6 +22,11 @@ public:
     void setWrapMode(GLenum wrapS, GLenum wrapT);
     void setFilterMode(GLenum minFilter, GLenum magFilter);
     void generateMipmap();
+
+private:
+    GLuint textureID;
+    int width, height;
+    int channels; //color
 };
 
 #endif

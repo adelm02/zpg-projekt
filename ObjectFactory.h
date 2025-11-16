@@ -8,7 +8,6 @@
 #include "Scale.h"
 #include "Tranform.h"
 #include "Rotate.h"
-#include <glm/glm.hpp>
 #include <vector>
 
 

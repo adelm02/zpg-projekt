@@ -3,12 +3,15 @@
 #define ZPGPROJ_CONTROLLER_H
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec3.hpp>
 
 class SceneManager; // Forward declaration
 
 class Controller {
 private:
     static SceneManager* sceneManager;
+    static bool isDragging;
+    static glm::vec3 dragStartWorldPos;
 
 public:
     Controller(GLFWwindow* window);
@@ -16,7 +19,7 @@ public:
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
 
-    // Nastavení reference na SceneManager pro picking
+    // reference on scenemanager for picking
     static void setSceneManager(SceneManager* manager);
 };
 
