@@ -27,6 +27,8 @@ void DrawableObject::draw()
     shaderProgram.SetUniform("viewPos", Camera::getInstance()->getCameraPos());
     shaderProgram.SetUniform("objectColor", color);
 
+    shaderProgram.SetUniform("wCoord", 500.0f);
+
     shaderProgram.SetUniform("material.ra", material.ra);
     shaderProgram.SetUniform("material.rd", material.rd);
     shaderProgram.SetUniform("material.rs", material.rs);
@@ -46,8 +48,6 @@ void DrawableObject::draw()
 
 void DrawableObject::drawWithStencil(int stencilValue)
 {
-
-
     // write to stencil buffer
     glStencilFunc(GL_ALWAYS, stencilValue, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -61,6 +61,8 @@ void DrawableObject::drawWithStencil(int stencilValue)
     shaderProgram.SetUniform("projectionMatrix", Camera::getInstance()->getProjection());
     shaderProgram.SetUniform("viewPos", Camera::getInstance()->getCameraPos());
     shaderProgram.SetUniform("objectColor", color);
+
+    shaderProgram.SetUniform("wCoord", 500.0f);
 
     shaderProgram.SetUniform("material.ra", material.ra);
     shaderProgram.SetUniform("material.rd", material.rd);

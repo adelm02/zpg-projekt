@@ -8,7 +8,7 @@
 #include "sphere.h"
 #include "triangle.h"
 #include "plain_textured.h"
-
+#include "CustomTrans.h"
 
 extern Tranform moveEarth;
 extern Tranform moveMoon;
@@ -261,23 +261,76 @@ void SceneManager::createScene1() {
         glm::vec3(1.0f, 0.09f, 0.032f)
     ));
 
-    auto pinapl = ObjectFactory::createCharacter(
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        0.0f,
-        0.5f,
-        *resourceManager.getModel("pinapl"),
-        *resourceManager.getShaderProgram("blinn")
-    );
 
-    pinapl.object->setTexture(resourceManager.getTexture("pinapl"));
+    // Objekt s NORMÁLNÍ transformací - efekt w=500 bude z uniformy
+    {
+        Scale* s = new Scale(0.5f, 0.5f, 0.5f);
+        Tranform* pos = new Tranform(-3.0f, 0.0f, 0.0f);
+
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("blinn"),
+            *trans,
+            glm::vec3(1.0f, 0.0f, 0.0f)
+        );
+
+        scene1->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
 
 
-    scene1->addObject(pinapl.object);
-    drawableObjects.push_back(pinapl.object);
-    for (auto* s : pinapl.scales) scales.push_back(s);
-    for (auto* r : pinapl.rotations) rotations.push_back(r);
-    for (auto* t : pinapl.transforms) tranforms.push_back(t);
-    transformations.push_back(pinapl.transformation);
+    {
+        Scale* s = new Scale(0.5f, 0.5f, 0.5f);
+        Tranform* pos = new Tranform(0.0f, 0.0f, 0.0f);
+        CustomTransform* customTrans = new CustomTransform(20.0f);  // w=20
+
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+        trans->addTrans(customTrans);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("blinn"),
+            *trans,
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+
+        scene1->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
+
+    {
+        Scale* s = new Scale(0.5f, 0.5f, 0.5f);
+        Tranform* pos = new Tranform(3.0f, 0.0f, 0.0f);
+
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("blinn"),
+            *trans,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+        scene1->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
 
     addScene(scene1);
     ownedScenes.push_back(scene1);

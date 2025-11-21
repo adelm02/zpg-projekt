@@ -118,6 +118,7 @@ add_executable(zpgproj
         ResourceManager.h
         ObjectManager.cpp
         ObjectManager.h
+        CustomTrans.h
 )
 
 
