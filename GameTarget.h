@@ -1,7 +1,3 @@
-//
-// GameTarget.h
-//
-
 #ifndef ZPGPROJ_GAMETARGET_H
 #define ZPGPROJ_GAMETARGET_H
 

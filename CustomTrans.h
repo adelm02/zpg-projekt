@@ -16,16 +16,12 @@ public:
     CustomTransform(float w = 20.0f) : customW(w) {}
 
     glm::mat4 getMatrix() const override {
-
         glm::mat4 matrix = glm::mat4(1.0f);
-
         matrix[3][3] = customW;
-
         return matrix;
     }
 
     void apply() override {}
-
     void setW(float w) {
         customW = w;
     }

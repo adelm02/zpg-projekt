@@ -25,7 +25,6 @@ bool Application::init(int width, int height, const char* title) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // DŮLEŽITÉ: Povolit stencil buffer (8 bitů)
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
     lastTime = glfwGetTime();
@@ -39,7 +38,7 @@ bool Application::init(int width, int height, const char* title) {
 
     Controller *controller = new Controller(window);
 
-    // Nastavit SceneManager pro Controller (pro picking)
+    // set SceneManager for Controller (for picking)
     Controller::setSceneManager(&manager);
 
     glfwMakeContextCurrent(window);
@@ -48,7 +47,6 @@ bool Application::init(int width, int height, const char* title) {
     glewExperimental = GL_TRUE;
     glewInit();
 
-    // Povolit depth test a stencil test
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
 
@@ -90,7 +88,7 @@ void Application::Run() {
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        // Vyčistit color, depth i stencil buffer
+        // clear color, depth and stencil buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         static float angleE = 0.0f;
@@ -112,14 +110,12 @@ void Application::Run() {
         moveEarth = Tranform(earthX, 0.0f, earthZ);
         moveMoon  = Tranform(moonX,  0.0f, moonZ);
 
-        // Přepínání scén
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) manager.switchScene(0);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) manager.switchScene(1);
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) manager.switchScene(2);
         if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) manager.switchScene(3);
         if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) manager.switchScene(4);
 
-        // FOV změny
         if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
             Camera::getInstance()->setFovDegrees(45.0f);
             printf("FOV set to 45 deg\n");
@@ -145,7 +141,7 @@ void Application::Run() {
 
         updateFlashlight();
 
-        // Vykreslit scénu SE STENCIL BUFFEREM
+//scene with stencil buffer
         Scene* currentScene = manager.getCurrentScene();
         if (currentScene) {
             currentScene->drawAllWithStencil();

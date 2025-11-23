@@ -87,7 +87,7 @@ void SceneManager::registerSceneObjectsToManager() {
         objectManager->addObjectWithoutScene(data);
     }
 
-    std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;}
+    //std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;}
 
 void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
     Scene* scene = getCurrentScene();

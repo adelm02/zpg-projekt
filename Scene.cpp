@@ -1,5 +1,4 @@
-// Scene.cpp
-// Upraveno pro podporu stencil bufferu
+
 #include "Scene.h"
 #include "Camera.h"
 #include <algorithm>

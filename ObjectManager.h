@@ -1,8 +1,3 @@
-//
-// ObjectManager.h - ZJEDNODUŠENÁ VERZE
-// Pouze správa objektů - bez input handling
-//
-
 #ifndef ZPGPROJ_OBJECTMANAGER_H
 #define ZPGPROJ_OBJECTMANAGER_H
 
