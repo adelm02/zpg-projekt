@@ -9,15 +9,13 @@
 #include "triangle.h"
 #include "plain_textured.h"
 #include "CustomTrans.h"
+#include "ArcadeGame.h"
+#include "PathMovement.h"
+#include "GameTarget.h"
+#include "OrbitTransform.h"
 
-extern Tranform moveEarth;
-extern Tranform moveMoon;
-extern Transformation tEarth;
-extern Transformation tMoon;
-
-SceneManager::SceneManager() {
+SceneManager::SceneManager() : arcadeGame(nullptr), earthOrbit(nullptr), moonOrbit(nullptr) {
     objectManager = new ObjectManager();
-    std::cout << "SceneManager: ObjectManager created" << std::endl;
 }
 
 SceneManager::~SceneManager() {
@@ -28,10 +26,13 @@ SceneManager::~SceneManager() {
     for (auto* obj : rotations) delete obj;
     for (auto* obj : fireflies) delete obj;
     for (auto* obj : ownedScenes) delete obj;
+    if (arcadeGame) delete arcadeGame;
+    if (earthOrbit) delete earthOrbit;
+    if (moonOrbit) delete moonOrbit;
 }
 
 void SceneManager::initializeScenes() {
-    std::srand(42);
+    std::srand(std::time(nullptr));
     loadAllResources();
 
     createScene1();
@@ -47,7 +48,6 @@ void SceneManager::initializeScenes() {
 
 void SceneManager::registerSceneObjectsToManager() {
     if (!objectManager) {
-        std::cout << "Error: ObjectManager not initialized!" << std::endl;
         return;
     }
 
@@ -62,12 +62,8 @@ void SceneManager::registerSceneObjectsToManager() {
 
     objectManager->setScene(currentScene);
 
-    //all object from scenee
     const auto& sceneObjects = currentScene->getObjects();
 
-    std::cout << "Registering " << sceneObjects.size() << " objects to ObjectManager" << std::endl;
-
-    // create ObjectData for all objetcs
     for (size_t i = 0; i < sceneObjects.size(); i++) {
         DrawableObject* obj = sceneObjects[i];
         if (!obj) continue;
@@ -77,17 +73,11 @@ void SceneManager::registerSceneObjectsToManager() {
         data.originalColor = obj->color;
         data.stencilID = i + 1;
 
-        // trans from SceneManager
         auto it = objectToTransform.find(obj);
         if (it != objectToTransform.end()) {
             data.transform = it->second;
-            std::cout << "Found transform for object " << i
-                      << " at (" << data.transform->x << ", "
-                      << data.transform->y << ", "
-                      << data.transform->z << ")" << std::endl;
         } else {
             data.transform = nullptr;
-            std::cout << "WARNING: No transform for object " << i << std::endl;
         }
 
         data.transformation = nullptr;
@@ -97,25 +87,20 @@ void SceneManager::registerSceneObjectsToManager() {
         objectManager->addObjectWithoutScene(data);
     }
 
-    std::cout << "Registration complete. ObjectManager has "
-              << objectManager->getObjectCount() << " objects" << std::endl;
-}
+    std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;}
 
 void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
-
     Scene* scene = getCurrentScene();
     if (!scene) {
         std::cout << "No current scene for planting tree" << std::endl;
         return;
     }
 
-    // trees in scene 3
     if (currentSceneIndex != 2) {
         std::cout << "Tree planting allowed only in scene 3" << std::endl;
         return;
     }
 
-    // pos tree
     glm::vec3 pos = glm::vec3(worldPos.x, 0.0f, worldPos.z);
 
     auto tree = ObjectFactory::createTree(
@@ -126,33 +111,22 @@ void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
 
     scene->addObject(tree.object);
 
-
     drawableObjects.push_back(tree.object);
     for (auto* t : tree.transforms) tranforms.push_back(t);
     transformations.push_back(tree.transformation);
     if (!tree.transforms.empty()) {
         registerObjectTransform(tree.object, tree.transforms[0]);
     }
-    // register objectManager, no adding to scene
+
     if (objectManager) {
         ObjectData data;
         data.object = tree.object;
         data.originalColor = tree.object->color;
         data.stencilID = 0;
-
         data.transformation = tree.transformation;
         data.scale = tree.scales.empty() ? nullptr : tree.scales[0];
-        data.transform = tree.transforms.empty() ? nullptr : tree.transforms[0];  // ← TOTO!
+        data.transform = tree.transforms.empty() ? nullptr : tree.transforms[0];
         data.rotation = tree.rotations.empty() ? nullptr : tree.rotations[0];
-
-        /*if (data.transform) {
-            std::cout << "Tree transform registered at: ("
-                      << data.transform->x << ", "
-                      << data.transform->y << ", "
-                      << data.transform->z << ")" << std::endl;
-        } else {
-            std::cout << "ERROR: tree.transforms is empty!" << std::endl;
-        }*/
 
         objectManager->addObjectWithoutScene(data);
         objectManager->updateStencilIDs();
@@ -176,30 +150,19 @@ void SceneManager::moveSelectedObject(const glm::vec3& offset) {
     Tranform* transform = objData.transform;
 
     if (!transform) {
-        std::cout << "Object has no transform" << std::endl;
         return;
     }
 
-
     transform->x += offset.x;
     transform->z += offset.z;
-    // Y at 0
 
-    std::cout << "Object at: ("
-              << transform->x << ", "
-              << transform->y << ", "
-              << transform->z << ")" << std::endl;
-}
-
+    std::cout << "Object at: ("<< transform->x << ", "<< transform->y << ", "<< transform->z << ")" << std::endl;}
 
 void SceneManager::registerObjectTransform(DrawableObject* obj, Tranform* transform) {
     objectToTransform[obj] = transform;
 }
 
-
-
 void SceneManager::loadAllResources() {
-
     // Shaders
     resourceManager.loadShader("vertex", GL_VERTEX_SHADER, "../shaders/vertex.vert");
     resourceManager.loadShader("fragment_lambert", GL_FRAGMENT_SHADER, "../shaders/lambert.frag");
@@ -225,34 +188,34 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModel("triangle", triangle, sizeof(triangle)/sizeof(float), 6);
     resourceManager.loadModelWithTexCoords("plane", plain_textured, sizeof(plain_textured)/sizeof(float), 8);
 
+
     resourceManager.loadModelOBJ("formula", "assets/formula1.obj");
     resourceManager.loadModelOBJ("shrek", "assets/shrek/shrek.obj");
     resourceManager.loadModelOBJ("fiona", "assets/shrek/fiona.obj");
     resourceManager.loadModelOBJ("toilet", "assets/shrek/toiled.obj");
-    resourceManager.loadModelOBJ("pinapl", "assets/pineapple2/pineapple2.obj");
+    resourceManager.loadModelOBJ("koule", "assets/planet.obj");
 
     // Textures
     resourceManager.loadTexture("grass", "assets/grass.jpg");
     resourceManager.loadTexture("shrek", "assets/shrek/shrek.png");
     resourceManager.loadTexture("fiona", "assets/shrek/fiona.png");
     resourceManager.loadTexture("toilet", "assets/shrek/toiled.jpg");
-    resourceManager.loadTexture("pinapl", "assets/pineapple2/pineapple2.jpg");
-
+    resourceManager.loadTexture("sun", "assets/planets/sun.jpg");
+    resourceManager.loadTexture("earth", "assets/planets/earth.jpg");
+    resourceManager.loadTexture("moon", "assets/planets/moon.jpg");
 }
 
 void SceneManager::createScene1() {
     Scene* scene1 = new Scene();
     scene1->registerLightingShader(resourceManager.getShaderProgram("blinn"));
 
-    // Directional light
     scene1->addLight(Light(
-        0, // directional
+        0,
         glm::vec3(-0.3f, -1.0f, -0.2f),
         glm::vec3(1.0f, 1.0f, 1.0f),
         glm::vec3(1.0f, 0.0f, 0.0f)
     ));
 
-    // Flashlight
     scene1->addLight(Light(
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
@@ -261,12 +224,9 @@ void SceneManager::createScene1() {
         glm::vec3(1.0f, 0.09f, 0.032f)
     ));
 
-
-    // Objekt s NORMÁLNÍ transformací - efekt w=500 bude z uniformy
     {
         Scale* s = new Scale(0.5f, 0.5f, 0.5f);
         Tranform* pos = new Tranform(-3.0f, 0.0f, 0.0f);
-
         Transformation* trans = new Transformation();
         trans->addTrans(s);
         trans->addTrans(pos);
@@ -285,11 +245,10 @@ void SceneManager::createScene1() {
         tranforms.push_back(pos);
     }
 
-
     {
         Scale* s = new Scale(0.5f, 0.5f, 0.5f);
         Tranform* pos = new Tranform(0.0f, 0.0f, 0.0f);
-        CustomTransform* customTrans = new CustomTransform(20.0f);  // w=20
+        CustomTransform* customTrans = new CustomTransform(20.0f);
 
         Transformation* trans = new Transformation();
         trans->addTrans(s);
@@ -313,7 +272,6 @@ void SceneManager::createScene1() {
     {
         Scale* s = new Scale(0.5f, 0.5f, 0.5f);
         Tranform* pos = new Tranform(3.0f, 0.0f, 0.0f);
-
         Transformation* trans = new Transformation();
         trans->addTrans(s);
         trans->addTrans(pos);
@@ -338,6 +296,7 @@ void SceneManager::createScene1() {
 
 void SceneManager::createScene2() {
     Scene* scene2 = new Scene();
+    scene2->registerLightingShader(resourceManager.getShaderProgram("blinn"));
 
     std::vector<std::string> skyboxFaces = {
         "assets/sky/cubemap/posx.jpg",
@@ -351,17 +310,30 @@ void SceneManager::createScene2() {
     SkyBox* skybox = new SkyBox(skyboxFaces, resourceManager.getShaderProgram("skybox"));
     scene2->setSkyBox(skybox);
 
+    scene2->addLight(Light(
+        0,
+        glm::vec3(-0.3f, -1.0f, -0.2f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f)
+    ));
+
+    arcadeGame = new ArcadeGame(
+        scene2,
+        resourceManager.getModel("sphere"),
+        resourceManager.getShaderProgram("blinn")
+    );
+
+    for (int i = 0; i < 5; i++) {
+        arcadeGame->spawnRandomTarget();
+    }
     addScene(scene2);
     ownedScenes.push_back(scene2);
 }
 
 void SceneManager::createScene3() {
-
-
     Scene* scene3 = new Scene();
     scene3->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
-    // Fireflies
     for (int i = 0; i < 8; ++i) {
         float rx = (std::rand() / (float)RAND_MAX) * 80.0f;
         float rz = (std::rand() / (float)RAND_MAX) * 48.0f;
@@ -381,10 +353,8 @@ void SceneManager::createScene3() {
         scales.push_back(firefly->getScale());
         tranforms.push_back(firefly->getTransform());
         transformations.push_back(firefly->getTransformation());
-
     }
 
-    // Flashlight
     scene3->addLight(Light(
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f),
@@ -392,7 +362,6 @@ void SceneManager::createScene3() {
         glm::radians(25.0f),
         glm::vec3(1.0f, 0.09f, 0.032f)
     ));
-
 
     for (int i = 0; i < 50; i++) {
         float x = (i % 10) * 10.0f;
@@ -412,7 +381,6 @@ void SceneManager::createScene3() {
             registerObjectTransform(tree.object, tree.transforms[0]);
         }
     }
-
 
     for (int i = 0; i < 50; i++) {
         float x = (i % 10) * 10.0f + 5.0f;
@@ -445,7 +413,6 @@ void SceneManager::createScene3() {
     for (auto* t : ground.transforms) tranforms.push_back(t);
     transformations.push_back(ground.transformation);
 
-    // Shrek
     auto shrek = ObjectFactory::createCharacter(
         glm::vec3(42.0f, 0.0f, 22.0f),
         90.0f,
@@ -462,7 +429,6 @@ void SceneManager::createScene3() {
     for (auto* t : shrek.transforms) tranforms.push_back(t);
     transformations.push_back(shrek.transformation);
 
-    // Fiona
     auto fiona = ObjectFactory::createCharacter(
         glm::vec3(48.0f, 0.0f, 22.0f),
         -90.0f,
@@ -479,7 +445,6 @@ void SceneManager::createScene3() {
     for (auto* t : fiona.transforms) tranforms.push_back(t);
     transformations.push_back(fiona.transformation);
 
-    // Toilet
     auto toilet = ObjectFactory::createCharacter(
         glm::vec3(45.0f, 0.0f, 17.0f),
         0.0f,
@@ -501,60 +466,88 @@ void SceneManager::createScene3() {
 }
 
 void SceneManager::createScene4() {
-
     Scene* scene4 = new Scene();
     scene4->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
-    // point light(sun)
-    scene4->addLight(Light(1, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.95f, 0.85f),glm::vec3(1.0f, 0.027f, 0.0028f)));
-    auto sun = ObjectFactory::createCharacter(
+    // sun
+    scene4->addLight(Light(
+        1,
         glm::vec3(0.0f, 0.0f, 0.0f),
-        0.0f,
-        1.5f,
-        *resourceManager.getModel("sphere"),
-        *resourceManager.getShaderProgram("constant")
+        glm::vec3(1.0f, 0.95f, 0.85f),
+        glm::vec3(1.0f, 0.027f, 0.0028f)
+    ));
+
+    Scale* sunScale = new Scale(1.5f, 1.5f, 1.5f);
+    Tranform* sunPos = new Tranform(0.0f, 0.0f, 0.0f);
+    Transformation* sunTrans = new Transformation();
+    sunTrans->addTrans(sunScale);
+    sunTrans->addTrans(sunPos);
+
+    DrawableObject* sunObject = new DrawableObject(
+        *resourceManager.getModel("koule"),
+        *resourceManager.getShaderProgram("constant"),
+        *sunTrans,
+        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
+    );
+    sunObject->setTexture(resourceManager.getTexture("sun"));
+    scene4->addObject(sunObject);
+
+    drawableObjects.push_back(sunObject);
+    transformations.push_back(sunTrans);
+    scales.push_back(sunScale);
+    tranforms.push_back(sunPos);
+
+    // earth
+    earthOrbit = new OrbitTransform(
+        8.0f,
+        0.5f,
+        2.0f,
+        glm::vec3(0.0f, 0.0f, 0.0f)
     );
 
-    sun.object->color = glm::vec3(1.0f, 0.8f, 0.0f);
-    scene4->addObject(sun.object);
-
-    drawableObjects.push_back(sun.object);
-    for (auto* s : sun.scales) scales.push_back(s);
-    for (auto* r : sun.rotations) rotations.push_back(r);
-    for (auto* t : sun.transforms) tranforms.push_back(t);
-    transformations.push_back(sun.transformation);
-
-    // global moveEarth trans
     Scale* earthScale = new Scale(0.6f, 0.6f, 0.6f);
-    tEarth.addTrans(earthScale);
-    tEarth.addTrans(&moveEarth);
+    Transformation* earthTrans = new Transformation();
+    earthTrans->addTrans(earthScale);
+    earthTrans->addTrans(earthOrbit);
 
     DrawableObject* earthObject = new DrawableObject(
-        *resourceManager.getModel("sphere"),
+        *resourceManager.getModel("koule"),
         *resourceManager.getShaderProgram("phong_light"),
-        tEarth,
-        glm::vec3(0.0f, 0.3f, 0.8f) // blue color
+        *earthTrans,
+        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
     );
+    earthObject->setTexture(resourceManager.getTexture("earth"));
     scene4->addObject(earthObject);
 
-    scales.push_back(earthScale);
     drawableObjects.push_back(earthObject);
+    transformations.push_back(earthTrans);
+    scales.push_back(earthScale);
 
-    // moveMoon global
+    // moon
+    moonOrbit = new OrbitTransform(
+        2.0f,
+        1.5f,
+        3.0f,
+        earthOrbit->currentPosition
+    );
+
     Scale* moonScale = new Scale(0.25f, 0.25f, 0.25f);
-    tMoon.addTrans(moonScale);
-    tMoon.addTrans(&moveMoon);
+    Transformation* moonTrans = new Transformation();
+    moonTrans->addTrans(moonScale);
+    moonTrans->addTrans(moonOrbit);
 
     DrawableObject* moonObject = new DrawableObject(
-        *resourceManager.getModel("sphere"),
+        *resourceManager.getModel("koule"),
         *resourceManager.getShaderProgram("phong_light"),
-        tMoon,
-        glm::vec3(0.7f, 0.7f, 0.7f) // gray color
+        *moonTrans,
+        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
     );
+    moonObject->setTexture(resourceManager.getTexture("moon"));
     scene4->addObject(moonObject);
 
-    scales.push_back(moonScale);
     drawableObjects.push_back(moonObject);
+    transformations.push_back(moonTrans);
+    scales.push_back(moonScale);
 
     addScene(scene4);
     ownedScenes.push_back(scene4);
@@ -570,7 +563,6 @@ void SceneManager::switchScene(int index) {
 
         if (objectManager) {
             objectManager->setScene(scenes[currentSceneIndex]);
-
             registerSceneObjectsToManager();
         }
     }
@@ -589,7 +581,18 @@ void SceneManager::update(float dt) {
         return;
     if (scenes[currentSceneIndex] == nullptr)
         return;
+
     scenes[currentSceneIndex]->update(dt);
+
+    if (currentSceneIndex == 1 && arcadeGame) {
+        arcadeGame->update(dt);
+    }
+
+    if (currentSceneIndex == 3 && earthOrbit && moonOrbit) {
+        earthOrbit->update(dt);
+        moonOrbit->setOrbitCenter(earthOrbit->currentPosition);
+        moonOrbit->update(dt);
+    }
 }
 
 int SceneManager::getCurrentSceneIndex() {
@@ -621,4 +624,6 @@ DrawableObject* SceneManager::getObjectByIndex(int index) {
     return nullptr;
 }
 
-
+ArcadeGame* SceneManager::getArcadeGame() {
+    return arcadeGame;
+}

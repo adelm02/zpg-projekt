@@ -119,6 +119,10 @@ add_executable(zpgproj
         ObjectManager.cpp
         ObjectManager.h
         CustomTrans.h
+        PathMovement.h
+        GameTarget.h
+        ArcadeGame.h
+        OrbitTransform.h
 )
 
 

@@ -2,12 +2,16 @@
 #define ZPGPROJ_SCENEMANAGER_H
 
 #include <vector>
-
+#include <map>
 #include "Scene.h"
 #include "ResourceManager.h"
 #include "Firefly.h"
 #include "Rotate.h"
 #include "ObjectManager.h"
+#include "ArcadeGame.h"
+#include "OrbitTransform.h"
+#include "PathMovement.h"
+#include "GameTarget.h"
 
 class SceneManager {
 public:
@@ -33,10 +37,15 @@ public:
     void registerObjectTransform(DrawableObject* obj, Tranform* transform);
 
 
+    ArcadeGame* getArcadeGame();
+
 private:
     std::vector<Scene*> scenes;
     int currentSceneIndex = 0;
-    int selectedObjectIndex = -1; // picked none
+    int selectedObjectIndex = -1;
+    ArcadeGame* arcadeGame;
+    OrbitTransform* earthOrbit;
+    OrbitTransform* moonOrbit;
 
     ResourceManager resourceManager;
     ObjectManager* objectManager;
@@ -49,13 +58,12 @@ private:
     std::vector<Firefly*> fireflies;
     std::vector<Scene*> ownedScenes;
     std::map<DrawableObject*, Tranform*> objectToTransform;
+
     void loadAllResources();
     void createScene1();
     void createScene2();
     void createScene3();
     void createScene4();
-
-
 };
 
 #endif
