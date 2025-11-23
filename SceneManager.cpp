@@ -203,6 +203,7 @@ void SceneManager::loadAllResources() {
     resourceManager.loadTexture("sun", "assets/planets/sun.jpg");
     resourceManager.loadTexture("earth", "assets/planets/earth.jpg");
     resourceManager.loadTexture("moon", "assets/planets/moon.jpg");
+
 }
 
 void SceneManager::createScene1() {

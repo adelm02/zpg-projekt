@@ -1,0 +1,9 @@
+V grafice pracujeme s homogenními souřadnicemi (x, y, z, w). Aby GPU získalo finální pozici na obrazovce, provádí perspektivní dělení. Vydělí souřadnice x, y, z složkou w (x_final = x / w).
+
+Celý výstupní vektor gl_Position násobím číslem 500. Protože se násobí čitatel i jmenovatel zlomku stejně 500x/500w, hodnota se vykrátí a pozice bodu se nezmění.
+Správnost je ověřena když scéna se vykreslí normálně, nic nezmizí ani se nedeformuje, což potvrzuje, že násobek homogenního vektoru ukazuje stále stejný bod
+
+zmenšení = 20
+Matice natvrdo nastavuje složku w na 20. Při perspektivním dělení se tedy všechny souřadnice dělí dvaceti x/20
+
+Zelená koule ve scéně 1, je viditelně 20× menší oproti ostatním koulím, ačkoliv má stejný model. (díky tomu, že jsme 4 složku matice nastavili na 20 místo toho abychom ji nechali jako u ostatních na 1)

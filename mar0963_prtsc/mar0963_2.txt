@@ -1,0 +1,7 @@
+Třída ArcadeGame se stará o životní cyklus cílů. V pravidelných intervalech vytváří nové cíle (spawnRandomTarget), kterým náhodně přiděluje vlastnosti (rychlost, barvu, trasu). Každá barva má jiný počet bodů.mar
+
+Třída PathMovement zajišťuje pohyb po lomené čáře. Objekt dostane seznam záchytných bodů a já v každém framu dopočítávám jeho přesnou polohu.
+Dělám to pomocí lineární interpolace mezi dvěma body, což zajistí, že pohyb je plynulý a odpovídá uběhlému času (vážený průměr mezi A a B, měnísí se v čase)
+
+V Controlleru přečtu z hloubkového bufferu (glReadPixels), jak daleko je objekt pod myší. Pomocí funkce glm::unProject převedu kliknutí myši na přesný bod v 3D.
+Pak jen změřím vzdálenost tohohle bodu od středu letící kuličky. Pokud je menší než poloměr kuličky (s lehkou tolerancí), započítám HIT.

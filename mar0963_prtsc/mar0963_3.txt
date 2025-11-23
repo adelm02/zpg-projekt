@@ -1,0 +1,12 @@
+v Třídě OrbitTransform, orbit = počítá pozici planety na kružnici kolem centra a rotace = točí planetou kolem její vlastní osy.
+
+V metodě update používám goniometrické funkce.
+Mám úhel, který v každém snímku zvětšuji o rychlost krát čas (dt), aby byl pohyb plynulý.
+
+Abych z úhlu získala pozici X a Z ve světě, používám vzorec pro polární souřadnice: x = střed_x + poloměr * cos(úhel), z = střed_z + poloměr * sin(úhel) (díky tomu se objekt drží na kručnici).
+
+Pohyb:
+Země obíhá kolem statického bodu (0,0,0) (Slunce).
+Ale u Měsíce v každém framu vezmu aktuální pozici Země a nastavím ji jako nový střed oběhu pro Měsíc. Tím vzniká závislý pohyb.
+
+Aby to vypadalo reálně, Slunce má shader constant (svítí samo) a je v něm bodové světlo. Planety mají shader phong, aby na ně to světlo dopadalo a měly stín na odvrácené straně.
