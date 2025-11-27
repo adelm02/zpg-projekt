@@ -13,6 +13,7 @@ class Application {
 private:
     GLFWwindow* window;
     SceneManager& manager;
+    Controller* appController;
     double lastTime = 0.0;
     bool flashlightOn = false;
     bool fKeyPressed = false;

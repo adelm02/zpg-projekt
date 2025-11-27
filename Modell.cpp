@@ -16,7 +16,6 @@ void Modell::loadData(const float* float_array, int float_array_size, int stride
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, float_array_size * sizeof(float), float_array, GL_STATIC_DRAW);
 
-    // Position (location 0)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
@@ -35,15 +34,12 @@ void Modell::loadDataWithTexCoords(const float* float_array, int float_array_siz
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, float_array_size * sizeof(float), float_array, GL_STATIC_DRAW);
 
-    // Position (location 0) - 3 floats
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
-    // Normal (location 1) - 3 floats
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
 
-    // TexCoords (location 2) - 2 floats
     if (stride >= 8) {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(6 * sizeof(float)));

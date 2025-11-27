@@ -3,13 +3,14 @@
 #include "Light.h"
 #include "Tranform.h"
 
-extern Tranform moveEarth;
-extern Tranform moveMoon;
-
 Application::Application(SceneManager& manager) : manager(manager), window(nullptr),
     flashlightOn(false), fKeyPressed(false) {}
 
 Application::~Application() {
+    if (appController) {
+        delete appController;
+        appController = nullptr;
+    }
     terminate();
 }
 
@@ -36,7 +37,7 @@ bool Application::init(int width, int height, const char* title) {
         return false;
     }
 
-    Controller *controller = new Controller(window);
+    this->appController = new Controller(window);
 
     // set SceneManager for Controller (for picking)
     Controller::setSceneManager(&manager);
@@ -90,25 +91,6 @@ void Application::Run() {
 
         // clear color, depth and stencil buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        static float angleE = 0.0f;
-        static float angleM = 0.0f;
-
-        const float speedE = 0.8f;
-        const float speedM = 2.0f;
-        const float radiusE = 2.5f;
-        const float radiusM = 3.5f;
-
-        angleE += (float)deltaTime * speedE;
-        angleM += (float)deltaTime * speedM;
-
-        float earthX = cosf(angleE) * radiusE;
-        float earthZ = sinf(angleE) * radiusE;
-        float moonX  = earthX + cosf(angleM) * radiusM;
-        float moonZ  = earthZ + sinf(angleM) * radiusM;
-
-        moveEarth = Tranform(earthX, 0.0f, earthZ);
-        moveMoon  = Tranform(moonX,  0.0f, moonZ);
 
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) manager.switchScene(0);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) manager.switchScene(1);

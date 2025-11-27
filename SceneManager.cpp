@@ -87,7 +87,8 @@ void SceneManager::registerSceneObjectsToManager() {
         objectManager->addObjectWithoutScene(data);
     }
 
-    //std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;}
+    //std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;
+}
 
 void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
     Scene* scene = getCurrentScene();
@@ -166,7 +167,6 @@ void SceneManager::loadAllResources() {
     // Shaders
     resourceManager.loadShader("vertex", GL_VERTEX_SHADER, "../shaders/vertex.vert");
     resourceManager.loadShader("fragment_lambert", GL_FRAGMENT_SHADER, "../shaders/lambert.frag");
-    resourceManager.loadShader("fragment_phong", GL_FRAGMENT_SHADER, "../shaders/phong.frag");
     resourceManager.loadShader("fragment_blinn", GL_FRAGMENT_SHADER, "../shaders/blinn.frag");
     resourceManager.loadShader("fragment_constant", GL_FRAGMENT_SHADER, "../shaders/fragmentColor.frag");
     resourceManager.loadShader("fragment_phong_light", GL_FRAGMENT_SHADER, "../shaders/fragment_phong_light.frag");
@@ -175,7 +175,6 @@ void SceneManager::loadAllResources() {
 
     // ShaderPrograms
     resourceManager.loadShaderProgram("lambert", "vertex", "fragment_lambert");
-    resourceManager.loadShaderProgram("phong", "vertex", "fragment_phong");
     resourceManager.loadShaderProgram("phong_light", "vertex", "fragment_phong_light");
     resourceManager.loadShaderProgram("blinn", "vertex", "fragment_blinn");
     resourceManager.loadShaderProgram("constant", "vertex", "fragment_constant");
@@ -471,12 +470,7 @@ void SceneManager::createScene4() {
     scene4->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
     // sun
-    scene4->addLight(Light(
-        1,
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(1.0f, 0.95f, 0.85f),
-        glm::vec3(1.0f, 0.027f, 0.0028f)
-    ));
+    scene4->addLight(Light(1,glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0f, 0.95f, 0.85f),glm::vec3(1.0f, 0.027f, 0.028f)));
 
     Scale* sunScale = new Scale(1.5f, 1.5f, 1.5f);
     Tranform* sunPos = new Tranform(0.0f, 0.0f, 0.0f);
@@ -488,7 +482,7 @@ void SceneManager::createScene4() {
         *resourceManager.getModel("koule"),
         *resourceManager.getShaderProgram("constant"),
         *sunTrans,
-        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
     sunObject->setTexture(resourceManager.getTexture("sun"));
     scene4->addObject(sunObject);
@@ -499,12 +493,7 @@ void SceneManager::createScene4() {
     tranforms.push_back(sunPos);
 
     // earth
-    earthOrbit = new OrbitTransform(
-        8.0f,
-        0.5f,
-        2.0f,
-        glm::vec3(0.0f, 0.0f, 0.0f)
-    );
+    earthOrbit = new OrbitTransform(8.0f,0.5f,2.0f,glm::vec3(0.0f, 0.0f, 0.0f));
 
     Scale* earthScale = new Scale(0.6f, 0.6f, 0.6f);
     Transformation* earthTrans = new Transformation();
@@ -515,7 +504,7 @@ void SceneManager::createScene4() {
         *resourceManager.getModel("koule"),
         *resourceManager.getShaderProgram("phong_light"),
         *earthTrans,
-        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
     earthObject->setTexture(resourceManager.getTexture("earth"));
     scene4->addObject(earthObject);
@@ -525,12 +514,7 @@ void SceneManager::createScene4() {
     scales.push_back(earthScale);
 
     // moon
-    moonOrbit = new OrbitTransform(
-        2.0f,
-        1.5f,
-        3.0f,
-        earthOrbit->currentPosition
-    );
+    moonOrbit = new OrbitTransform(2.0f,1.5f,3.0f,earthOrbit->currentPosition);
 
     Scale* moonScale = new Scale(0.25f, 0.25f, 0.25f);
     Transformation* moonTrans = new Transformation();
@@ -541,7 +525,7 @@ void SceneManager::createScene4() {
         *resourceManager.getModel("koule"),
         *resourceManager.getShaderProgram("phong_light"),
         *moonTrans,
-        glm::vec3(1.0f, 1.0f, 1.0f)  // ← BÍLÁ!
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
     moonObject->setTexture(resourceManager.getTexture("moon"));
     scene4->addObject(moonObject);
