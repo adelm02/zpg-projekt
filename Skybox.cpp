@@ -90,7 +90,6 @@ GLuint SkyBox::loadCubemap(const std::vector<std::string>& faces) {
                          0, GL_RGBA, width, height, 0,
                          GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
-            std::cout << "Loaded: " << faces[i] << std::endl;
         } else {
             std::cerr << "ERROR: Cubemap texture failed to load: " << faces[i] << std::endl;
         }

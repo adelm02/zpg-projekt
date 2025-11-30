@@ -3,7 +3,7 @@
 #define ZPGPROJ_PATHMOVEMENT_H
 
 #include "AbstractTrans.h"
-#include <glm/glm.hpp>                      // ← DŮLEŽITÉ!
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 

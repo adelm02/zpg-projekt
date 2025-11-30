@@ -53,7 +53,7 @@ void SceneManager::registerSceneObjectsToManager() {
 
     Scene* currentScene = getCurrentScene();
     if (!currentScene) {
-        std::cout << "Error: No current scene!" << std::endl;
+        std::cout << "Error: No current scene" << std::endl;
         return;
     }
 
@@ -181,6 +181,10 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModelOBJ("login", "assets/login.obj");
     resourceManager.loadModelOBJ("housik", "assets/housik.obj");
     resourceManager.loadModelOBJ("fire", "assets/Campfire.obj");
+    resourceManager.loadModelOBJ("apple", "assets/fruits/Apple.obj");
+    resourceManager.loadModelOBJ("orange", "assets/fruits/Orange.obj");
+    resourceManager.loadModelOBJ("banan", "assets/fruits/banan.obj");
+    resourceManager.loadModelOBJ("tomato", "assets/fruits/Tomato.obj");
 
 
     resourceManager.loadTexture("grass", "assets/grass.jpg");
@@ -192,6 +196,10 @@ void SceneManager::loadAllResources() {
     resourceManager.loadTexture("moon", "assets/planets/moon.jpg");
     resourceManager.loadTexture("drevo", "assets/drevo.png");
     resourceManager.loadTexture("wood", "assets/wood.png");
+    resourceManager.loadTexture("apple", "assets/fruits/apple_color.png");
+    resourceManager.loadTexture("orange", "assets/fruits/orange.png");
+    resourceManager.loadTexture("banan", "assets/fruits/banan.png");
+    resourceManager.loadTexture("tomato", "assets/fruits/Tomato.jpg");
 
 }
 
@@ -309,8 +317,15 @@ void SceneManager::createScene2() {
 
     arcadeGame = new ArcadeGame(
         scene2,
-        resourceManager.getModel("sphere"),
-        resourceManager.getShaderProgram("blinn")
+        resourceManager.getShaderProgram("blinn"),
+        resourceManager.getModel("apple"),
+        resourceManager.getModel("tomato"),
+        resourceManager.getModel("banan"),
+        resourceManager.getModel("orange"),
+        resourceManager.getTexture("apple"),
+        resourceManager.getTexture("tomato"),
+        resourceManager.getTexture("banan"),
+        resourceManager.getTexture("orange")
     );
 
     for (int i = 0; i < 5; i++) {

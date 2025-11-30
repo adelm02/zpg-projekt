@@ -52,7 +52,7 @@ DrawableObject* ObjectManager::getSelectedObject() {
 
 void ObjectManager::addObject(ObjectData data) {
     if (!data.object) {
-        std::cout << "Error: Cannot add null object!" << std::endl;
+        std::cout << "Error: Cannot add null object" << std::endl;
         return;
     }
 
@@ -69,7 +69,7 @@ void ObjectManager::addObject(ObjectData data) {
 
 void ObjectManager::addObjectWithoutScene(ObjectData data) {
     if (!data.object) {
-        std::cout << "Error: Cannot add null object!" << std::endl;
+        std::cout << "Error: Cannot add null object" << std::endl;
         return;
     }
 
@@ -82,7 +82,7 @@ void ObjectManager::deleteSelected() {
     if (selectedIndex >= 0) {
         deleteByIndex(selectedIndex);
     } else {
-        std::cout << "No object selected to delete!" << std::endl;
+        std::cout << "No object selected to delete" << std::endl;
     }
 }
 
@@ -123,7 +123,7 @@ void ObjectManager::moveSelected(const glm::vec3& offset) {
 
     Tranform* transform = objects[selectedIndex].transform;
     if (!transform) {
-        std::cout << "Cannot move object, no transform data" << std::endl;
+        std::cout << "No transform data" << std::endl;
         return;
     }
 
@@ -139,7 +139,7 @@ void ObjectManager::rotateSelected(float angleDelta, const glm::vec3& axis) {
     // !rotate, create rotate
     if (!objects[selectedIndex].rotation) {
         if (!objects[selectedIndex].transformation) {
-            std::cout << "Cannot rotate object, no transformation data" << std::endl;
+            std::cout << "No transformation data" << std::endl;
             return;
         }
 
@@ -158,7 +158,7 @@ void ObjectManager::scaleSelected(float factor) {
     Scale* scale = objects[selectedIndex].scale;
 
     if (!scale) {
-        std::cout << "Cannot scale object, no scale data" << std::endl;
+        std::cout << "No scale data" << std::endl;
         return;
     }
 

@@ -1,0 +1,14 @@
+# Blender 3.6.17 MTL File: 'banana.blend'
+# www.blender.org
+
+newmtl Material
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:/3d/substance painter/textures/banana/banana_DefaultMaterial_BaseColor.png
+map_Ns E:/3d/substance painter/textures/banana/banana_DefaultMaterial_Roughness.png
+map_refl E:/3d/substance painter/textures/banana/banana_DefaultMaterial_Metallic.png
+map_Bump -bm 1.000000 E:/3d/substance painter/textures/banana/banana_DefaultMaterial_Normal.png

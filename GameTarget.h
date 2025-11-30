@@ -22,11 +22,11 @@ private:
 
 public:
     GameTarget(const glm::vec3& startPos, const std::vector<glm::vec3>& path,
-               float speed, int pointValue, Modell& model, ShaderProgram& shader,
+               float speed, int pointValue, float scaleValue, Modell& model, ShaderProgram& shader,
                glm::vec3 color)
         : points(pointValue), isActive(true), wasHit(false) {
 
-        scale = new Scale(0.8f, 0.8f, 0.8f);
+        scale = new Scale(scaleValue, scaleValue, scaleValue);
         pathMovement = new PathMovement(path, speed, false);
 
         transformation = new Transformation();
