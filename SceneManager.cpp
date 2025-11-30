@@ -86,23 +86,12 @@ void SceneManager::registerSceneObjectsToManager() {
 
         objectManager->addObjectWithoutScene(data);
     }
-
-    //std::cout << "ObjectManager has "<< objectManager->getObjectCount() << " objects" << std::endl;
 }
 
 void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
     Scene* scene = getCurrentScene();
-    if (!scene) {
-        std::cout << "No current scene for planting tree" << std::endl;
-        return;
-    }
 
-    if (currentSceneIndex != 2) {
-        std::cout << "Tree planting allowed only in scene 3" << std::endl;
-        return;
-    }
-
-    glm::vec3 pos = glm::vec3(worldPos.x, 0.0f, worldPos.z);
+    glm::vec3 pos = glm::vec3(worldPos.x, worldPos.y, worldPos.z);
 
     auto tree = ObjectFactory::createTree(
         pos,
@@ -132,7 +121,6 @@ void SceneManager::plantTreeAt(const glm::vec3 &worldPos) {
         objectManager->addObjectWithoutScene(data);
         objectManager->updateStencilIDs();
     }
-    std::cout << "Tree planted at: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 }
 
 void SceneManager::moveSelectedObject(const glm::vec3& offset) {
@@ -164,7 +152,6 @@ void SceneManager::registerObjectTransform(DrawableObject* obj, Tranform* transf
 }
 
 void SceneManager::loadAllResources() {
-    // Shaders
     resourceManager.loadShader("vertex", GL_VERTEX_SHADER, "../shaders/vertex.vert");
     resourceManager.loadShader("fragment_lambert", GL_FRAGMENT_SHADER, "../shaders/lambert.frag");
     resourceManager.loadShader("fragment_blinn", GL_FRAGMENT_SHADER, "../shaders/blinn.frag");
@@ -173,14 +160,12 @@ void SceneManager::loadAllResources() {
     resourceManager.loadShader("vertex_skybox", GL_VERTEX_SHADER, "../shaders/skybox.vert");
     resourceManager.loadShader("fragment_skybox", GL_FRAGMENT_SHADER, "../shaders/skybox.frag");
 
-    // ShaderPrograms
     resourceManager.loadShaderProgram("lambert", "vertex", "fragment_lambert");
     resourceManager.loadShaderProgram("phong_light", "vertex", "fragment_phong_light");
     resourceManager.loadShaderProgram("blinn", "vertex", "fragment_blinn");
     resourceManager.loadShaderProgram("constant", "vertex", "fragment_constant");
     resourceManager.loadShaderProgram("skybox", "vertex_skybox", "fragment_skybox");
 
-    // Modells
     resourceManager.loadModel("tree", tree, sizeof(tree)/sizeof(float), 6);
     resourceManager.loadModel("bush", bushes, sizeof(bushes)/sizeof(float), 6);
     resourceManager.loadModel("sphere", sphere, sizeof(sphere)/sizeof(float), 6);
@@ -193,8 +178,11 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModelOBJ("fiona", "assets/shrek/fiona.obj");
     resourceManager.loadModelOBJ("toilet", "assets/shrek/toiled.obj");
     resourceManager.loadModelOBJ("koule", "assets/planet.obj");
+    resourceManager.loadModelOBJ("login", "assets/login.obj");
+    resourceManager.loadModelOBJ("housik", "assets/housik.obj");
+    resourceManager.loadModelOBJ("fire", "assets/Campfire.obj");
 
-    // Textures
+
     resourceManager.loadTexture("grass", "assets/grass.jpg");
     resourceManager.loadTexture("shrek", "assets/shrek/shrek.png");
     resourceManager.loadTexture("fiona", "assets/shrek/fiona.png");
@@ -202,6 +190,8 @@ void SceneManager::loadAllResources() {
     resourceManager.loadTexture("sun", "assets/planets/sun.jpg");
     resourceManager.loadTexture("earth", "assets/planets/earth.jpg");
     resourceManager.loadTexture("moon", "assets/planets/moon.jpg");
+    resourceManager.loadTexture("drevo", "assets/drevo.png");
+    resourceManager.loadTexture("wood", "assets/wood.png");
 
 }
 
@@ -334,6 +324,13 @@ void SceneManager::createScene3() {
     Scene* scene3 = new Scene();
     scene3->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
+    glm::vec3 housePos(42.0f, 0.0f, 40.0f);
+    glm::vec3 firePos(43.0f, 0.0f, 28.0f);
+
+    float houseRadius = 6.0f;
+    float fireRadius = 4.0f;
+
+
     for (int i = 0; i < 8; ++i) {
         float rx = (std::rand() / (float)RAND_MAX) * 80.0f;
         float rz = (std::rand() / (float)RAND_MAX) * 48.0f;
@@ -366,9 +363,17 @@ void SceneManager::createScene3() {
     for (int i = 0; i < 50; i++) {
         float x = (i % 10) * 10.0f;
         float z = (i / 10) * 10.0f;
+        glm::vec3 currentPos(x, 0.0f, z);
+
+        float distanceH = glm::distance(currentPos, housePos);
+        float distanceF  = glm::distance(currentPos, firePos);
+
+        if (distanceH < houseRadius || distanceF < fireRadius) {
+            continue;
+        }
 
         auto tree = ObjectFactory::createTree(
-            glm::vec3(x, 0.0f, z),
+            currentPos,
             *resourceManager.getModel("tree"),
             *resourceManager.getShaderProgram("phong_light")
         );
@@ -414,11 +419,9 @@ void SceneManager::createScene3() {
     transformations.push_back(ground.transformation);
 
     auto shrek = ObjectFactory::createCharacter(
-        glm::vec3(42.0f, 0.0f, 22.0f),
-        90.0f,
-        2.0f,
+        glm::vec3(42.0f, 0.0f, 22.0f),90.0f,2.0f,
         *resourceManager.getModel("shrek"),
-        *resourceManager.getShaderProgram("constant")
+        *resourceManager.getShaderProgram("phong_light")
     );
     shrek.object->setTexture(resourceManager.getTexture("shrek"));
     scene3->addObject(shrek.object);
@@ -430,14 +433,42 @@ void SceneManager::createScene3() {
     transformations.push_back(shrek.transformation);
 
     auto fiona = ObjectFactory::createCharacter(
-        glm::vec3(48.0f, 0.0f, 22.0f),
-        -90.0f,
-        2.0f,
+        glm::vec3(48.0f, 0.0f, 22.0f), -90.0f, 2.0f,
         *resourceManager.getModel("fiona"),
-        *resourceManager.getShaderProgram("constant")
+        *resourceManager.getShaderProgram("phong_light")
     );
     fiona.object->setTexture(resourceManager.getTexture("fiona"));
     scene3->addObject(fiona.object);
+
+    auto housik = ObjectFactory::createCharacter(housePos, 90.0f, 1.0f,
+            *resourceManager.getModel("housik"),
+            *resourceManager.getShaderProgram("phong_light")
+        );
+
+    housik.object->setTexture(resourceManager.getTexture("drevo"));
+    scene3->addObject(housik.object);
+
+    auto fire = ObjectFactory::createCharacter(firePos, 0.0f, 2.5f,
+        *resourceManager.getModel("fire"),
+        *resourceManager.getShaderProgram("phong_light")
+    );
+
+    fire.object->setTexture(resourceManager.getTexture("wood"));
+    scene3->addObject(fire.object);
+
+    scene3->addLight(Light(1, firePos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.2f, 0.6f, 0.0f), glm::vec3(1.0f, 0.2f, 0.2f)));
+
+    drawableObjects.push_back(fire.object);
+    for (auto* s : fire.scales) scales.push_back(s);
+    for (auto* r : fire.rotations) rotations.push_back(r);
+    for (auto* t : fire.transforms) tranforms.push_back(t);
+    transformations.push_back(fire.transformation);
+
+    drawableObjects.push_back(housik.object);
+    for (auto* s : housik.scales) scales.push_back(s);
+    for (auto* r : housik.rotations) rotations.push_back(r);
+    for (auto* t : housik.transforms) tranforms.push_back(t);
+    transformations.push_back(housik.transformation);
 
     drawableObjects.push_back(fiona.object);
     for (auto* s : fiona.scales) scales.push_back(s);
@@ -446,9 +477,7 @@ void SceneManager::createScene3() {
     transformations.push_back(fiona.transformation);
 
     auto toilet = ObjectFactory::createCharacter(
-        glm::vec3(45.0f, 0.0f, 17.0f),
-        0.0f,
-        1.5f,
+        glm::vec3(45.0f, 0.0f, 17.0f), 0.0f, 1.5f,
         *resourceManager.getModel("toilet"),
         *resourceManager.getShaderProgram("phong_light")
     );
@@ -470,7 +499,7 @@ void SceneManager::createScene4() {
     scene4->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
     // sun
-    scene4->addLight(Light(1,glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0f, 0.95f, 0.85f),glm::vec3(1.0f, 0.027f, 0.028f)));
+    scene4->addLight(Light(1,glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0f, 0.95f, 0.85f),glm::vec3(1.0f, 0.01f, 0.01f)));
 
     Scale* sunScale = new Scale(1.5f, 1.5f, 1.5f);
     Tranform* sunPos = new Tranform(0.0f, 0.0f, 0.0f);
@@ -512,6 +541,27 @@ void SceneManager::createScene4() {
     drawableObjects.push_back(earthObject);
     transformations.push_back(earthTrans);
     scales.push_back(earthScale);
+
+    moon2Orbit = new OrbitTransform(2.f, 2.0f, 1.0f, earthOrbit->currentPosition);
+
+    Scale* moon2Scale = new Scale(0.2f, 0.2f, 0.2f);
+
+    Transformation* moon2Trans = new Transformation();
+    moon2Trans->addTrans(moon2Scale);
+    moon2Trans->addTrans(moon2Orbit);
+
+    DrawableObject* moon2Object = new DrawableObject(
+        *resourceManager.getModel("login"),
+        *resourceManager.getShaderProgram("phong_light"),
+        *moon2Trans,
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    );
+
+    scene4->addObject(moon2Object);
+
+    drawableObjects.push_back(moon2Object);
+    transformations.push_back(moon2Trans);
+    scales.push_back(moon2Scale);
 
     // moon
     moonOrbit = new OrbitTransform(2.0f,1.5f,3.0f,earthOrbit->currentPosition);
@@ -577,6 +627,10 @@ void SceneManager::update(float dt) {
         earthOrbit->update(dt);
         moonOrbit->setOrbitCenter(earthOrbit->currentPosition);
         moonOrbit->update(dt);
+    }
+    if (moon2Orbit) {
+        moon2Orbit->setOrbitCenter(earthOrbit->currentPosition);
+        moon2Orbit->update(dt);
     }
 }
 

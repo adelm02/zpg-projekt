@@ -90,7 +90,7 @@ void main() {
     vec3 N = normalize(Normal);
     vec3 V = normalize(viewPos - FragPos);
 
-    vec3 globalAmbient = vec3(0.07, 0.07, 0.07);
+    vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
     vec3 result = globalAmbient;
 
 

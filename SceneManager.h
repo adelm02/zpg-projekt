@@ -25,6 +25,7 @@ public:
     int getCurrentSceneIndex();
     Scene* getCurrentScene();
 
+
     void initializeScenes();
 
     void setSelectedObject(int index);
@@ -46,6 +47,7 @@ private:
     ArcadeGame* arcadeGame;
     OrbitTransform* earthOrbit;
     OrbitTransform* moonOrbit;
+    OrbitTransform* moon2Orbit;
 
     ResourceManager resourceManager;
     ObjectManager* objectManager;
