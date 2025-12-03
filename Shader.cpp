@@ -67,11 +67,10 @@ void Shader::createShader(GLenum shaderType, const char *shaderCode)
 
 void Shader::createShaderFromFile(GLenum shaderType, const char* shaderFile)
 {
-    //Loading the contents of a file into a variable
     std::ifstream file(shaderFile);
     if (!file.is_open())
     {
-        std::cout << "Unable to open file " << shaderFile << std::endl;
+        std::cout << "Cant open file " << shaderFile << std::endl;
         exit(-1);
     }
     std::string shaderCode((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());

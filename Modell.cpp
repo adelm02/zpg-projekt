@@ -19,7 +19,7 @@ void Modell::loadData(const float* float_array, int float_array_size, int stride
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)0);
 
-    // Normal (location 1)
+    // Normal
     if (stride >= 6) {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*)(3 * sizeof(float)));
@@ -62,10 +62,10 @@ bool Modell::loadOBJ(const std::string& path) {
         basedir = path.substr(0, pos + 1);
     }
 
-    bool ok = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
-                               path.c_str(),
-                               basedir.empty() ? nullptr : basedir.c_str(), true);
+    bool ok = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str(), basedir.empty() ? nullptr : basedir.c_str(), true);
+
     if (!warn.empty()) std::cerr << "[tinyobj] " << warn << "\n";
+
     if (!ok) {
         std::cerr << "[tinyobj] " << err << " (path='" << path << "')" << "\n";
         return false;
@@ -79,13 +79,13 @@ bool Modell::loadOBJ(const std::string& path) {
 
     for (const auto& sh : shapes) {
         for (const auto& idx : sh.mesh.indices) {
-            // Position
+
             int vi = 3 * idx.vertex_index;
             verts.push_back(attrib.vertices[vi + 0]);
             verts.push_back(attrib.vertices[vi + 1]);
             verts.push_back(attrib.vertices[vi + 2]);
 
-            // Normal
+            // normal
             float nx = 0.f, ny = 0.f, nz = 1.f;
             if (idx.normal_index >= 0 && !attrib.normals.empty()) {
                 int ni = 3 * idx.normal_index;
@@ -97,7 +97,7 @@ bool Modell::loadOBJ(const std::string& path) {
             verts.push_back(ny); 
             verts.push_back(nz);
 
-            // Texture coordinates
+            // texture
             if (hasTextures && idx.texcoord_index >= 0) {
                 int ti = 2 * idx.texcoord_index;
                 verts.push_back(attrib.texcoords[ti + 0]);

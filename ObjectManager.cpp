@@ -59,7 +59,7 @@ void ObjectManager::addObject(ObjectData data) {
     objects.push_back(data);
     int index = objects.size() - 1;
 
-    // add to scene
+
     if (currentScene) {
         currentScene->addObject(data.object);
     }
@@ -88,7 +88,7 @@ void ObjectManager::deleteSelected() {
 
 void ObjectManager::deleteByIndex(int index) {
     if (index < 0 || index >= (int)objects.size()) {
-        std::cout << "Invalid index for deletion: " << index << std::endl;
+        std::cout << "Invalid index for delete: " << index << std::endl;
         return;
     }
 

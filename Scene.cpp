@@ -1,8 +1,8 @@
-
 #include "Scene.h"
 #include "Camera.h"
 #include <algorithm>
 #include <algorithm>
+
 void Scene::addObject(DrawableObject* obj) {
     objects.push_back(obj);
 }

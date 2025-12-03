@@ -7,8 +7,7 @@ ObjectComponents ObjectFactory::createTree(const glm::vec3& position, Modell& mo
     Transformation* t = new Transformation();
     t->addTrans(move);
     
-    DrawableObject* tree = new DrawableObject(model, shader, *t, 
-                                               glm::vec3(0.20f, 0.65f, 0.40f));
+    DrawableObject* tree = new DrawableObject(model, shader, *t, glm::vec3(0.20f, 0.65f, 0.40f));
     tree->setMaterial(model.getMaterial());
     
     components.object = tree;
