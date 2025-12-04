@@ -89,11 +89,19 @@ void Controller::mouse_button_callback(GLFWwindow *window, int button, int actio
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        int windowWidth, windowHeight;
+        int framebufferWidth, framebufferHeight;
 
-        GLint x = (GLint)xpos;
-        GLint y = height - (GLint)ypos;
+        glfwGetWindowSize(window, &windowWidth, &windowHeight);
+        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+
+
+        float scaleX = (float)framebufferWidth / (float)windowWidth;
+        float scaleY = (float)framebufferHeight / (float)windowHeight;
+
+        GLint x = (GLint)(xpos * scaleX);
+        GLint y = framebufferHeight - (GLint)(ypos * scaleY);
+
 
         std::cout << "Click at screen coordinates: (" << xpos << ", " << ypos << ")" << std::endl;
 
@@ -112,7 +120,7 @@ void Controller::mouse_button_callback(GLFWwindow *window, int button, int actio
         glm::vec3 screenPos = glm::vec3(x, y, depth);
         glm::mat4 view = Camera::getInstance()->getCamera();
         glm::mat4 projection = Camera::getInstance()->getProjection();
-        glm::vec4 viewport = glm::vec4(0, 0, width, height);
+        glm::vec4 viewport = glm::vec4(0, 0, framebufferWidth, framebufferHeight);
         glm::vec3 worldPos = glm::unProject(screenPos, view, projection, viewport);
 
         std::cout << "unProject position: (" << worldPos.x << ", " << worldPos.y << ", " << worldPos.z << ")" << std::endl;

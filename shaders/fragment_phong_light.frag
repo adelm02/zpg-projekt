@@ -66,7 +66,7 @@ vec3 calculateLight(Light light, vec3 N, vec3 V) {
 
     vec3 ambient  = material.ra * light.color;
     vec3 diffuse  = material.rd * diff * light.color;
-    vec3 specular = material.rs * spec * light.color;
+    vec3 specular = material.rs * spec * light.color ;
     return (ambient + diffuse + specular) * attenuation;
 }
 

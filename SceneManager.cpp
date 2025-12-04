@@ -39,6 +39,7 @@ void SceneManager::initializeScenes() {
     createScene2();
     createScene3();
     createScene4();
+    createScene5();
 
     if (objectManager && !scenes.empty()) {
         objectManager->setScene(scenes[0]);
@@ -601,6 +602,97 @@ void SceneManager::createScene4() {
 
     addScene(scene4);
     ownedScenes.push_back(scene4);
+}
+
+void SceneManager::createScene5() {
+    Scene* scene5 = new Scene();
+    glm::vec3 lightBlueColor = glm::vec3(0.53f, 0.81f, 0.92f);
+    scene5->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
+
+    scene5->addLight(Light(
+        1,glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(2.0f, 2.0f, 2.0f),glm::vec3(1.0f, 0.09f, 0.032f)));
+
+    {
+        Scale* s = new Scale(1.0f, 1.0f, 1.0f);
+        Tranform* pos = new Tranform(-3.0f, 2.0f, -5.0f);
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("phong_light"),
+            *trans,lightBlueColor);
+
+        scene5->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
+
+
+    {
+        Scale* s = new Scale(1.0f, 1.0f, 1.0f);
+        Tranform* pos = new Tranform(3.0f, 2.0f, -5.0f);
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("phong_light"),
+            *trans, lightBlueColor);
+
+        scene5->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
+
+
+    {
+        Scale* s = new Scale(1.0f, 1.0f, 1.0f);
+        Tranform* pos = new Tranform(-3.0f, -2.0f, -5.0f);
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("phong_light"),
+            *trans, lightBlueColor);
+
+        scene5->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
+
+
+    {
+        Scale* s = new Scale(1.0f, 1.0f, 1.0f);
+        Tranform* pos = new Tranform(3.0f, -2.0f, -5.0f);
+        Transformation* trans = new Transformation();
+        trans->addTrans(s);
+        trans->addTrans(pos);
+
+        DrawableObject* obj = new DrawableObject(
+            *resourceManager.getModel("sphere"),
+            *resourceManager.getShaderProgram("phong_light"),
+            *trans,lightBlueColor);
+
+        scene5->addObject(obj);
+        drawableObjects.push_back(obj);
+        transformations.push_back(trans);
+        scales.push_back(s);
+        tranforms.push_back(pos);
+    }
+
+    addScene(scene5);
+    ownedScenes.push_back(scene5);
 }
 
 void SceneManager::addScene(Scene* scene) {
