@@ -1,0 +1,23 @@
+Zpracováno:
+Phongův osvětlovací model
+Blinn-Phongův osvětlovací model
+Modelovací transformace
+Zobrazovací transformace
+Projekční transformace
+Skládání transformací
+Textury
+Základní typy světel
+Reflektor (Baterka)
+Materiál
+Více shader programů
+Identifikace objektů
+Unproject
+Načítání modelů
+Skybox
+Vlastní OBJ model loginu
+Řešení viditelnosti
+
+
+Nemám:
+Bézierovy křivky / Splajn
+Normal Mapping

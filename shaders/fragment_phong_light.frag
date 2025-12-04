@@ -36,13 +36,14 @@ vec3 calculateLight(Light light, vec3 N, vec3 V) {
     float attenuation = 1.0;
 
     if (light.type == 0) {
-    // Directional
+// Directional
         L = normalize(-light.position);
     } else {
+//point
         L = normalize(light.position - FragPos);
         float d = length(light.position - FragPos);
         attenuation = 1.0 / max(light.atten.x + light.atten.y * d + light.atten.z * d * d, 0.001);
-
+//spotlight (baterka)
         if (light.type == 2) {
             vec3 spotDir = normalize(-light.direction);
             float theta = dot(L, spotDir);

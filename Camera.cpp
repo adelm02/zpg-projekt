@@ -78,7 +78,7 @@ void Camera::camera_move(GLFWwindow *window, double xpos, double ypos) {
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
-    yaw   += xoffset;
+    yaw += xoffset;
     pitch += yoffset;
 
     if(pitch > 89.0f)
