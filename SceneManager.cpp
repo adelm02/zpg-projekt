@@ -173,7 +173,6 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModel("triangle", triangle, sizeof(triangle)/sizeof(float), 6);
     resourceManager.loadModelWithTexCoords("plane", plain_textured, sizeof(plain_textured)/sizeof(float), 8);
 
-
     resourceManager.loadModelOBJ("formula", "assets/formula1.obj");
     resourceManager.loadModelOBJ("shrek", "assets/shrek/shrek.obj");
     resourceManager.loadModelOBJ("fiona", "assets/shrek/fiona.obj");
@@ -186,6 +185,7 @@ void SceneManager::loadAllResources() {
     resourceManager.loadModelOBJ("orange", "assets/fruits/Orange.obj");
     resourceManager.loadModelOBJ("banan", "assets/fruits/banan.obj");
     resourceManager.loadModelOBJ("tomato", "assets/fruits/Tomato.obj");
+    resourceManager.loadModelOBJ("trava", "assets/trava.obj");
 
 
     resourceManager.loadTexture("grass", "assets/grass.jpg");
@@ -201,6 +201,7 @@ void SceneManager::loadAllResources() {
     resourceManager.loadTexture("orange", "assets/fruits/orange.png");
     resourceManager.loadTexture("banan", "assets/fruits/banan.png");
     resourceManager.loadTexture("tomato", "assets/fruits/Tomato.jpg");
+    resourceManager.loadTexture("trava", "assets/trava.png");
 
 }
 
@@ -295,7 +296,7 @@ void SceneManager::createScene1() {
 
 void SceneManager::createScene2() {
     Scene* scene2 = new Scene();
-    scene2->registerLightingShader(resourceManager.getShaderProgram("blinn"));
+    scene2->registerLightingShader(resourceManager.getShaderProgram("phong_light"));
 
     std::vector<std::string> skyboxFaces = {
         "assets/sky/cubemap/posx.jpg",
@@ -312,13 +313,13 @@ void SceneManager::createScene2() {
     scene2->addLight(Light(
         0,
         glm::vec3(-0.3f, -1.0f, -0.2f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(0.7f, 0.7f, 0.7f),
         glm::vec3(1.0f, 0.0f, 0.0f)
     ));
 
     arcadeGame = new ArcadeGame(
         scene2,
-        resourceManager.getShaderProgram("blinn"),
+        resourceManager.getShaderProgram("phong_light"),
         resourceManager.getModel("apple"),
         resourceManager.getModel("tomato"),
         resourceManager.getModel("banan"),
@@ -328,6 +329,20 @@ void SceneManager::createScene2() {
         resourceManager.getTexture("banan"),
         resourceManager.getTexture("orange")
     );
+
+    auto trava = ObjectFactory::createCharacter(
+    glm::vec3(0.0f, -7.0f, -15.0f),90.0f,1.f,
+    *resourceManager.getModel("trava"),
+    *resourceManager.getShaderProgram("phong_light")
+);
+    trava.object->setTexture(resourceManager.getTexture("trava"));
+    scene2->addObject(trava.object);
+
+    drawableObjects.push_back(trava.object);
+    for (auto* s : trava.scales) scales.push_back(s);
+    for (auto* r : trava.rotations) rotations.push_back(r);
+    for (auto* t : trava.transforms) tranforms.push_back(t);
+    transformations.push_back(trava.transformation);
 
     for (int i = 0; i < 5; i++) {
         arcadeGame->spawnRandomTarget();
@@ -580,7 +595,7 @@ void SceneManager::createScene4() {
     scales.push_back(moon2Scale);
 
     // moon
-    moonOrbit = new OrbitTransform(2.0f,1.5f,3.0f,earthOrbit->currentPosition);
+    moonOrbit = new OrbitTransform(2.0f,1.5f,3.0f,earthOrbit->currentPosition, false);
 
     Scale* moonScale = new Scale(0.25f, 0.25f, 0.25f);
     Transformation* moonTrans = new Transformation();

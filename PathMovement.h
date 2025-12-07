@@ -11,12 +11,12 @@ class PathMovement : public AbstractTrans {
 private:
     std::vector<glm::vec3> points;
     float speed;
-    float currentTime;
+    float currentTime; //t
     int currentSegment;
     bool loop;
 
 public:
-    glm::vec3 currentPosition;
+    glm::vec3 currentPosition; //A, B
     bool finished;
 
     PathMovement(const std::vector<glm::vec3>& pathPoints, float moveSpeed, bool shouldLoop = false)
